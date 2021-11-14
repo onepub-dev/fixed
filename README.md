@@ -7,13 +7,14 @@ The Fixed package allows you to have explicit control over the no. of decimals (
 
 Fixed instances are immutable.
 
-For multiplication the resulting scale is the same of the two scales
+
+After a mathematical operation you may need to build a new Fixed object with the required scale.
+
+For multiplication the resulting scale is the sum of the two scales
 e.g.
 ```
   0.01 * 0.02 = 0.0002
 ```
-
-After a mathematical operation you may need to build a new Fixed object with the required scale.
 
 ```dart
 final rate = Fixed.fromMinorUnits(75486, scale: 5); // == 0.75486
@@ -24,7 +25,7 @@ final usDollarsHighScale = auDollars * rate;  // ==0.7548600, scale = 7
 final usDollars = Fixed(usDollarsHighScale, scale: 2); // == 0.75
 ```
 
-When performing division the result will have larger scale of the
+When performing division the results scale will be the larger scale of the
 two operands.
 
 ```dart
@@ -34,8 +35,39 @@ final share = winnings / winners;  // == 3.00000, scale = 5
 
 ```
 
+
+# Constructors
+
+There are multiple ways you can create a Fixed object
+```dart
+
+final t2 = Fixed.fromMinorUnits(1234, scale: 3); // == 1.234
+final t3 = Fixed.fromBigInt(BigInt.from(1234), scale: 3)); // == 1.234
+final t4 = Fixed(t1); // == 1.234
+final t5 = Fixed.parse('1.234', scale: 3); // == 1.234
+
+// This is the least desireable method as it can introduce
+// rounding errors.
+final t6 = Fixed.from(1.234, scale: 3); // == 1.234
+
+```
+
 # Operators
 Fixed provides mathematical operations:
+
+```dart
+final t1 = Fixed.parse('1.23'); // = 1.23
+final t2 = Fixed.fromMinorUnits(100, scale: 2); // = 1.00
+
+final t3 = t1 + t2; // == 2.23
+final t4 = t2 - t1; // == 0.23
+final t5 = t1 * t2; // == 1.23;
+final t6 = t1 / t2; // == 1.23
+final t7 = -t1; // == -1.23
+
+```
+
+# Comparision
 
 ```dart
 final t1 = Fixed.from(1.23);
