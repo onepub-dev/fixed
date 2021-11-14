@@ -4,4 +4,3 @@
 library fixed;
 
 export 'src/fixed.dart';
-
