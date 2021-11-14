@@ -136,6 +136,14 @@ void main() {
     expect(t1.scale, equals(4));
   });
 
+  test('unary minus', () {
+    final t1 = Fixed.from(1, scale: 4);
+    final t2 = -t1;
+    expect(t2.integerPart.toInt(), equals(-1));
+    expect(t2.decimalPart.toInt(), equals(0));
+    expect(t1.scale, equals(4));
+  });
+
   test('scale', () {
     final highScale = Fixed.fromMinorUnits(10000, scale: 4);
     expect(highScale.minorUnits.toInt(), equals(10000));

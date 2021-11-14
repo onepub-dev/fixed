@@ -103,14 +103,14 @@ class Fixed implements Comparable<Fixed> {
     _checkScale();
     this.minorUnits = BigInt.from(minorUnits);
   }
+  // Fixed.fromParts(int integerPart, int decimalPart, {this.scale = 2}) {
+  //   _checkScale();
+  //   minorUnits = integerPart * pow(10, scale) + (decimalPart * );
+  // }
 
-  /// Creates a fixed scale decimal from [amount]
-  /// where [amount] is an integer only value.
-  /// Use [fromMinorUnits] to create a [Fixed] value
-  /// from a decimal.
-  Fixed.fromBigInt(BigInt amount, {this.scale = 2}) {
+  /// Creates a fixed scale decimal from [minorUnits]
+  Fixed.fromBigInt(this.minorUnits, {this.scale = 2}) {
     _checkScale();
-    minorUnits = amount * ten.pow(scale);
   }
 
   void _checkScale() {
@@ -200,7 +200,7 @@ class Fixed implements Comparable<Fixed> {
   }
 
   /// unary minus operator.
-  Fixed operator -() => Fixed.fromBigInt(-minorUnits);
+  Fixed operator -() => Fixed.fromBigInt(-minorUnits, scale: scale);
 
   /// subtract operator
   Fixed operator -(Fixed operand) {
