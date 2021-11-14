@@ -19,74 +19,81 @@ void main() {
     expect(fixed.format('#.000'), equals('1.230'));
     expect(fixed.format('#'), equals('1'));
     expect(fixed.format('.##'), equals('.23'));
+
+    final t3 = Fixed.fromMinorUnits(-10000, scale: 4);
+    expect(t3.format('#.#'), equals('-1.0'));
+    expect(t3.format('#'), equals('-1'));
+    final t4 = Fixed.fromMinorUnits(10000, scale: 4);
+    expect(t4.format('#.#'), equals('1.0'));
+    expect(t4.format('#'), equals('1'));
   });
 
   group('ctors', () {
     test('Fixed.from', () {
       final t1 = Fixed.from(1);
       expect(t1.minorUnits.toInt(), equals(100));
-      expect(t1.majorUnits.toInt(), equals(1));
+      expect(t1.integerPart.toInt(), equals(1));
       expect(t1.scale, equals(2));
 
       final t2 = Fixed.from(100, scale: 2);
       expect(t2.minorUnits.toInt(), equals(10000));
-      expect(t2.majorUnits.toInt(), equals(100));
+      expect(t2.integerPart.toInt(), equals(100));
       expect(t2.scale, equals(2));
 
       final t3 = Fixed.from(1000, scale: 3);
       expect(t3.minorUnits.toInt(), equals(1000000));
-      expect(t3.majorUnits.toInt(), equals(1000));
+      expect(t3.integerPart.toInt(), equals(1000));
       expect(t3.scale, equals(3));
 
       final t4 = Fixed.from(1000, scale: 0);
       expect(t4.minorUnits.toInt(), equals(1000));
-      expect(t4.majorUnits.toInt(), equals(1000));
+      expect(t4.integerPart.toInt(), equals(1000));
       expect(t4.scale, equals(0));
 
       expect(() => Fixed.from(1000, scale: -1), throwsA(isA<FixedException>()));
 
       final t5 = Fixed.from(75486, scale: 5); // == 0.75486
       expect(t5.minorUnits.toInt(), equals(7548600000));
-      expect(t5.majorUnits.toInt(), equals(75486));
+      expect(t5.integerPart.toInt(), equals(75486));
       expect(t5.scale, equals(5));
     });
 
     test('Fixed.fromMinorUnits', () {
       final t1 = Fixed.fromMinorUnits(1, scale: 2);
       expect(t1.minorUnits.toInt(), equals(1));
-      expect(t1.majorUnits.toInt(), equals(0));
+      expect(t1.integerPart.toInt(), equals(0));
       expect(t1.scale, equals(2));
 
       final t2 = Fixed.fromMinorUnits(100, scale: 2);
       expect(t2.minorUnits.toInt(), equals(100));
-      expect(t2.majorUnits.toInt(), equals(1));
+      expect(t2.integerPart.toInt(), equals(1));
       expect(t2.scale, equals(2));
 
       final t3 = Fixed.fromMinorUnits(1000, scale: 3);
       expect(t3.minorUnits.toInt(), equals(1000));
-      expect(t3.majorUnits.toInt(), equals(1));
+      expect(t3.integerPart.toInt(), equals(1));
       expect(t3.scale, equals(3));
 
       final t4 = Fixed.fromMinorUnits(1000, scale: 0);
       expect(t4.minorUnits.toInt(), equals(1000));
-      expect(t4.majorUnits.toInt(), equals(1000));
+      expect(t4.integerPart.toInt(), equals(1000));
       expect(t4.scale, equals(0));
 
       expect(() => Fixed.from(1000, scale: -1), throwsA(isA<FixedException>()));
 
       final t5 = Fixed.fromMinorUnits(75486, scale: 5); // == 0.75486
       expect(t5.minorUnits.toInt(), equals(75486));
-      expect(t5.majorUnits.toInt(), equals(0));
+      expect(t5.integerPart.toInt(), equals(0));
       expect(t5.scale, equals(5));
 
       final t6 = Fixed.fromMinorUnits(1);
       expect(t6.minorUnits.toInt(), equals(1));
-      expect(t6.majorUnits.toInt(), equals(0));
+      expect(t6.integerPart.toInt(), equals(0));
       expect(t6.scale, equals(2));
 
       final rate2 = Fixed.fromMinorUnits(7548, scale: 5); // == 0.07548
       expect(rate2.minorUnits.toInt(), equals(7548));
-      expect(rate2.majorUnits.toInt(), equals(0));
+      expect(rate2.integerPart.toInt(), equals(0));
       expect(rate2.scale, equals(5));
     });
   });

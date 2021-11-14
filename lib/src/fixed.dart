@@ -124,7 +124,11 @@ class Fixed implements Comparable<Fixed> {
 
   BigInt get scaleFactor => ten.pow(scale);
 
-  BigInt get majorUnits => minorUnits ~/ scaleFactor;
+  /// The component of the number before the decimal point
+  BigInt get integerPart => minorUnits ~/ scaleFactor;
+
+  /// The component of the number after the decimal point.
+  BigInt get decimalPart => minorUnits % scaleFactor;
 
   /// returns true of the value of this [MinorUnit] is zero.
   bool get isZero => minorUnits == BigInt.zero;
@@ -251,8 +255,84 @@ class Fixed implements Comparable<Fixed> {
     return Fixed.from(result, scale: operands.maxScale);
   }
 
+  Fixed multiply(num multiplier) {
+    if (multiplier is int) {
+      return Fixed.fromBigInt(minorUnits * BigInt.from(multiplier));
+    }
+
+    if (multiplier is double) {
+      const floatingDecimalFactor = 1e14;
+      final decimalFactor = BigInt.from(100000000000000); // 1e14
+      final roundingFactor = BigInt.from(50000000000000); // 5 * 1e14
+
+      final product = minorUnits *
+          BigInt.from((multiplier.abs() * floatingDecimalFactor).round());
+
+      var result = product ~/ decimalFactor;
+      if (product.remainder(decimalFactor) >= roundingFactor) {
+        result += BigInt.one;
+      }
+      if (multiplier.isNegative) {
+        result *= -BigInt.one;
+      }
+
+      return Fixed.fromBigInt(result);
+    }
+    throw UnsupportedError(
+        'Unsupported type of multiplier: "${multiplier.runtimeType}", '
+        '(int or double are expected)');
+  }
+
   Fixed divide(num divisor) {
     return this * Fixed.from(1.0 / divisor.toDouble());
+  }
+
+  ///  Allocation
+  List<Fixed> allocationAccordingTo(List<int> ratios) {
+    if (ratios.isEmpty) {
+      throw ArgumentError.value(ratios, 'ratios',
+          'List of ratios must not be empty, cannot allocate to nothing.');
+    }
+
+    return _doAllocationAccordingTo(ratios.map((ratio) {
+      if (ratio < 0) {
+        throw ArgumentError.value(
+            ratios, 'ratios', 'Ratio must not be negative.');
+      }
+
+      return BigInt.from(ratio);
+    }).toList());
+  }
+
+  List<Fixed> _doAllocationAccordingTo(List<BigInt> ratios) {
+    final totalVolume = ratios.reduce((a, b) => a + b);
+
+    if (totalVolume == BigInt.zero) {
+      throw ArgumentError('Sum of ratios must be greater than zero, '
+          'cannot allocate to nothing.');
+    }
+
+    final absoluteValue = minorUnits.abs();
+    var remainder = absoluteValue;
+
+    final shares = ratios.map((ratio) {
+      final share = absoluteValue * ratio ~/ totalVolume;
+      remainder -= share;
+
+      return share;
+    }).toList();
+
+    for (var i = 0; remainder > BigInt.zero && i < shares.length; ++i) {
+      if (ratios[i] > BigInt.zero) {
+        shares[i] += BigInt.one;
+        remainder -= BigInt.one;
+      }
+    }
+
+    return shares
+        .map((share) => Fixed.fromBigInt(minorUnits.isNegative ? -share : share,
+            scale: scale))
+        .toList();
   }
 
   ///

@@ -39,7 +39,10 @@ class FixedEncoder {
     formatted = formatMajorPart(amount, majorPattern);
     if (hasMinor) {
       final minorPattern = pattern.substring(decimalSeparatorIndex + 1);
-      formatted += decimalSeparator + formatMinorPart(amount, minorPattern);
+      final minorPart = formatMinorPart(amount, minorPattern);
+      if (minorPart.isNotEmpty) {
+        formatted += decimalSeparator + formatMinorPart(amount, minorPattern);
+      }
     }
 
     return formatted;
@@ -53,10 +56,10 @@ class FixedEncoder {
     final moneyPattern = getMoneyPattern(majorPattern);
     checkZeros(moneyPattern, thousandSeparator, minor: false);
 
-    final majorUnits = amount.majorUnits;
+    final wholeNumberPart = amount.integerPart;
 
     final formattedMajorUnits =
-        getFormattedMajorUnits(amount, moneyPattern, majorUnits);
+        getFormattedMajorUnits(amount, moneyPattern, wholeNumberPart);
 
     // replace the the money components with a single #
     var compressedMajorPattern = compressMoney(majorPattern);
@@ -186,19 +189,26 @@ class FixedEncoder {
 
     }
 
-    final minorUnits = amount.minorUnits;
+    final decimals = amount.decimalPart;
 
-    // format the no. into that pattern.
-    // in order for Number format to format single digit minor unit properly
+    // format the no. using the pattern.
+    // In order for Number format to minor units
     // with proper 0s, we first add [minorDigitsFactor] and then strip the 1
     // after being formatted.
     //
     // e.g., using ## to format 1 would result in 1, but we want it
     // formatted as 01 because it is really the decimal part of the number.
 
-    var formattedMinorUnits = NumberFormat(moneyPattern)
-        .format((minorUnits + amount.scaleFactor).toInt())
-        .substring(1);
+    var formattedMinorUnits =
+        NumberFormat(moneyPattern).format(decimals.toInt());
+
+    /// If the lengtwe have minor digits of 4 and minorunits = 10
+    /// then the number format will produce 10 rather than 0010
+    /// So we need to add leading zeros
+    if (formattedMinorUnits.length < amount.scale) {
+      final leadingZeros = amount.scale - formattedMinorUnits.length;
+      formattedMinorUnits = '${'0' * leadingZeros}$formattedMinorUnits';
+    }
 
     if (moneyPattern.length < formattedMinorUnits.length) {
       // money pattern is short, so we need to force a truncation as
@@ -207,16 +217,11 @@ class FixedEncoder {
           formattedMinorUnits.substring(0, moneyPattern.length);
     }
 
-    /// If we have a minor digits of 4 and minorunits = 10
-    /// then the number format will produce 10 rather than 0010
-    /// So we need to add leading zeros
-    //if ()
-
     // Fixed problems caused by passing a int to the NumberFormat
     // when we are trying to format a decimal.
     // Move leading zeros to the end when minor units >= 10 - i.e.,
     // we want to keep the leading zeros for single digit cents.
-    if (minorUnits.toInt() >= amount.scaleFactor.toInt()) {
+    if (decimals.toInt() >= amount.scaleFactor.toInt()) {
       formatted = invertZeros(formatted);
     }
 
