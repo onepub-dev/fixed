@@ -152,7 +152,7 @@ class Fixed implements Comparable<Fixed> {
       return value;
     }
     var coef = Decimal.ten.pow(targetScale);
-    return (value * coef).truncate() / coef;
+    return (value * coef).round() / coef;
   }
 
   static void _checkScale(int scale) {
