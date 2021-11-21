@@ -114,6 +114,11 @@ void main() {
 
     expect(share.minorUnits.toInt(), equals(300000));
     expect(share.scale, equals(5));
+
+    final one = Fixed.fromMinorUnits(1, scale: 0);
+    final three = Fixed.fromMinorUnits(3, scale: 0);
+
+    expect(one / three, equals(Fixed.zero));
   });
 
   test('plus', () {
