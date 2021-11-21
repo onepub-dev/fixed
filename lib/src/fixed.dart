@@ -395,7 +395,7 @@ class Fixed implements Comparable<Fixed> {
   /// by calling NumberFormat.decimalPattern.
   /// If you don't provide a [locale] then we use the systems
   /// default locale.
-  String formatIntl(String? locale) {
+  String formatIntl([String? locale]) {
     locale ??= Intl.defaultLocale;
 
     var formatter = NumberFormat.decimalPattern(locale);
