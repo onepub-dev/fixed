@@ -169,6 +169,15 @@ void main() {
 
     final t3 = Fixed.from(1.01, scale: 2);
     expect(t3.toString(), equals('1.01'));
+
+    final t4 = Fixed.from(-1.01, scale: 0);
+    expect(t4.toString(), equals('-1'));
+
+    final t5 = Fixed.from(-1.01, scale: 1);
+    expect(t5.toString(), equals('-1.0'));
+
+    final t6 = Fixed.from(-1.01, scale: 2);
+    expect(t6.toString(), equals('-1.01'));
   });
 
   test('compare', () {

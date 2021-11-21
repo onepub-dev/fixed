@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'scale.dart';
+import 'package:decimal/decimal.dart';
 
 /// Decodes a monetary amount based on a pattern.
 class FixedDecoder {
@@ -22,10 +22,9 @@ class FixedDecoder {
     ArgumentError.checkNotNull(pattern, 'pattern');
   }
 
-  /// Paarses [monetaryValue] and returns
+  /// Parses [monetaryValue] and returns
   /// the value as a BigInt holding the minorUnits
-  BigInt decode(final String monetaryValue) {
-    final negativeOne = BigInt.from(-1);
+  Decimal decode(final String monetaryValue) {
     var majorUnits = BigInt.zero;
     var minorUnits = BigInt.zero;
 
@@ -79,14 +78,9 @@ class FixedDecoder {
       }
     }
 
-    if (isNegative) {
-      majorUnits = majorUnits * negativeOne;
-      minorUnits = minorUnits * negativeOne;
-    }
-
-    final scaleFactor = calcScaleFactor(scale);
-    final value = majorUnits * scaleFactor + minorUnits;
-    return value;
+    final value = Decimal.fromBigInt(majorUnits) +
+        Decimal.fromBigInt(minorUnits) / Decimal.ten.pow(scale);
+    return isNegative ? -value : value;
   }
 
   ///
@@ -248,7 +242,7 @@ class FixedParseException implements Exception {
       required int monetaryIndex,
       required String monetaryValue}) {
     final message = '''
-$monetaryValue contained an unexpected character '${compressedValue[monetaryIndex]}' at pos $monetaryIndex 
+$monetaryValue contained an unexpected character '${compressedValue[monetaryIndex]}' at pos $monetaryIndex
         when a match for pattern character ${compressedPattern[patternIndex]} at pos $patternIndex was expected.''';
     return FixedParseException(message);
   }
