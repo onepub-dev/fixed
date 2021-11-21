@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:decimal/decimal.dart';
+import 'package:decimal/intl.dart';
+import 'package:intl/intl.dart';
 
 import 'fixed_decoder.dart';
 import 'fixed_encoder.dart';
@@ -29,24 +31,32 @@ class Fixed implements Comparable<Fixed> {
   static late final Fixed zero = Fixed.from(0);
   static late final Fixed one = Fixed.from(1);
   static late final Fixed two = Fixed.from(2);
+  static late final Fixed ten = Fixed.from(10);
 
   /// Parses [amount] as a decimal value
-  /// using [pattern] to interpret the string.
-  ///
   /// The [scale] controls the number of decimal
   /// places to be retained.
   /// If [scale] < 0 then a FixedException will be thrown.
-  /// If the [pattern] is invalid or the [amount] isn't valid then
+  /// If the [amount] isn't valid then
   /// a [FixedParseException] is thrown.
+  /// If [invertSeparator] = false then we
+  /// assume '.' is the decimal place and ',' is the group separator.
+  /// If [invertSeparator] = true then we
+  /// assume ',' is the decimal place and '.' is the group separator.
   static Fixed parse(
     String amount, {
-    String pattern = '#.#',
     int scale = 2,
     bool invertSeparator = false,
   }) {
     _checkScale(scale);
+
+    final decimalSeparator = invertSeparator ? ',' : '.';
+
     final decoder = FixedDecoder(
-      pattern: pattern,
+      /// TODO: remove the pattern from the decoder
+      /// as I don't think we actually need one.
+      /// We just need to know what char is the decimal place.
+      pattern: '#$decimalSeparator#',
       groupSeparator: invertSeparator ? '.' : ',',
       decimalSeparator: invertSeparator ? ',' : '.',
       scale: scale,
@@ -58,13 +68,15 @@ class Fixed implements Comparable<Fixed> {
   /// if the [amount] cannot be parsed.
   static Fixed? tryParse(
     String amount, {
-    String pattern = '#.#',
+    //String pattern = '#.#',
     int scale = 2,
     bool invertSeparator = false,
   }) {
     try {
       return Fixed.parse(amount,
-          pattern: pattern, scale: scale, invertSeparator: invertSeparator);
+          //pattern: pattern,
+          scale: scale,
+          invertSeparator: invertSeparator);
     } on FixedParseException catch (_) {
       return null;
     }
@@ -76,23 +88,6 @@ class Fixed implements Comparable<Fixed> {
     _checkScale(scale);
     value =
         _rescale(fixed.value, existingScale: fixed.scale, targetScale: scale);
-  }
-
-  Decimal _rescale(
-    Decimal value, {
-    required int existingScale,
-    required int targetScale,
-  }) {
-    if (existingScale <= targetScale) {
-      // no precision lost
-      return value;
-    }
-    if (value.hasFinitePrecision && value.scale <= targetScale) {
-      // no precision lost
-      return value;
-    }
-    var coef = Decimal.ten.pow(targetScale);
-    return (value * coef).truncate() / coef;
   }
 
   /// Creates a Fixed scale value from decimal
@@ -141,6 +136,23 @@ class Fixed implements Comparable<Fixed> {
     _checkScale(scale);
     this.value =
         _rescale(value, existingScale: value.scale, targetScale: scale);
+  }
+
+  Decimal _rescale(
+    Decimal value, {
+    required int existingScale,
+    required int targetScale,
+  }) {
+    if (existingScale <= targetScale) {
+      // no precision lost
+      return value;
+    }
+    if (value.hasFinitePrecision && value.scale <= targetScale) {
+      // no precision lost
+      return value;
+    }
+    var coef = Decimal.ten.pow(targetScale);
+    return (value * coef).truncate() / coef;
   }
 
   static void _checkScale(int scale) {
@@ -377,6 +389,17 @@ class Fixed implements Comparable<Fixed> {
       return FixedEncoder(pattern, decimalSeparator: ',', groupSeparator: '.')
           .encode(this);
     }
+  }
+
+  /// Formats the value using the [locale]'s decimal pattern
+  /// by calling NumberFormat.decimalPattern.
+  /// If you don't provide a [locale] then we use the systems
+  /// default locale.
+  String formatIntl(String? locale) {
+    locale ??= Intl.defaultLocale;
+
+    var formatter = NumberFormat.decimalPattern(locale);
+    return formatter.format(DecimalIntl(value));
   }
 }
 
