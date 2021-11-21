@@ -261,4 +261,26 @@ void main() {
     expect(share.minorUnits.toInt(), equals(300000));
     expect(share.scale, 5);
   });
+
+  test('rescale', () {
+    final t1 = Fixed.parse('1.2345678', scale: 7);
+    final t2 = Fixed(t1, scale: 2);
+    final t3 = Fixed(t2, scale: 7);
+
+    expect(t2.integerPart, equals(BigInt.from(1)));
+    expect(t2.decimalPart, equals(BigInt.from(23)));
+    expect(t2.scale, equals(2));
+    expect(t3.integerPart, equals(BigInt.from(1)));
+    expect(t3.decimalPart, equals(BigInt.from(2300000)));
+    expect(t3.scale, equals(7));
+  });
+
+   test('rescale - rounding', () {
+    final t1 = Fixed.parse('1.2345678', scale: 7);
+    final t2 = Fixed(t1, scale: 3);
+
+    expect(t2.integerPart, equals(BigInt.from(1)));
+    expect(t2.decimalPart, equals(BigInt.from(235)));
+    expect(t2.scale, equals(3));
+  });
 }
