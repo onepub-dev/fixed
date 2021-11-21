@@ -1,3 +1,11 @@
+# 1.0.0-beta3
+- changes the underlying implementation to use the decimal package
+  Thanks to Alexandre Ardhuin for the significant contribution that made this possible :)
+- Created statics for one, two and zero. Created consts for maxInt and minInt. Added ~/, %, remainder, abs, sign, pow, toInt
+- change thousandSeparator to groupSeparator as this is the more generally used term
+- Changed Fixed.fromBigInt to take minor units rather than major units as I found I was constantly misusing it. I think actually makes more sense you can always BigInt.toInt and Fixed.from to create a fixed from a BigInt.
+- Fixed the formatter for small -ve numbers. Added a 'decimalPart' method to return just the decimal component of the fixed no. Renamed majorUnits to 'integerPart'
+
 # 1.0.0-beta2
 Improved the documentation.
 

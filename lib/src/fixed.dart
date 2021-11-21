@@ -16,7 +16,7 @@ class Fixed implements Comparable<Fixed> {
 
   // The value
   late final Decimal value;
-  
+
   // If a number has a scale of 2 then
   // 1 would be returned as 100.
   late final BigInt minorUnits = (value * Decimal.ten.pow(scale)).toBigInt();
@@ -65,7 +65,7 @@ class Fixed implements Comparable<Fixed> {
     try {
       return Fixed.parse(amount,
           pattern: pattern, scale: scale, invertSeparator: invertSeparator);
-    } on FixedParseException catch (e) {
+    } on FixedParseException catch (_) {
       return null;
     }
   }
@@ -163,10 +163,10 @@ class Fixed implements Comparable<Fixed> {
   /// The returned value will always be a +ve no.
   /// The [integerPart] will contain the sign.
   BigInt get decimalPart => (minorUnits - integerPart * scaleFactor).abs();
-  
+
   /// Returns the sign of this [Fixed] amount.
   /// Returns 0 for zero, -1 for values less than zero and +1 for values greater than zero.
-  int get sign => value.sign;
+  int get sign => value.signum;
 
   /// returns true of the value of this [MinorUnit] is zero.
   bool get isZero => value == Decimal.zero;
@@ -231,23 +231,44 @@ class Fixed implements Comparable<Fixed> {
       Fixed.fromDecimal(value * other.value, scale: scale + other.scale);
 
   /// Division operator.
-  Fixed operator /(Fixed other) =>
-      Fixed.fromDecimal(value / other.value, scale: max(scale, other.scale));
+  Fixed operator /(Fixed other) {
+    /// Decimal throws an infinite precision error for the likes of 1/3.
+    //    Fixed.fromDecimal(value / other.value, scale: max(scale, other.scale));
+
+    final maxScale = max(scale, other.scale);
+
+    late BigInt selfMinor;
+    BigInt otherMinor;
+    if (scale > other.scale) {
+      selfMinor = minorUnits;
+      // horribly inefficent.
+      otherMinor = Fixed.fromDecimal(
+              _rescale(other.value,
+                  existingScale: other.scale, targetScale: scale),
+              scale: maxScale)
+          .minorUnits;
+    } else {
+      otherMinor = other.minorUnits;
+      // horribly inefficent.
+      selfMinor = Fixed.fromDecimal(
+              _rescale(value, existingScale: scale, targetScale: other.scale),
+              scale: maxScale)
+          .minorUnits;
+    }
+
+    return Fixed.from(
+        (selfMinor / otherMinor) +
+            Fixed.fromMinorUnits(5, scale: maxScale + 1).toInt(),
+        scale: maxScale);
+  }
 
   /// Truncating division operator.
-  /// TODO: either this or / is not implemented correctly
-  Fixed operator ~/(Fixed divisor) {
-    final operands = _Operands(this, divisor);
-    var result = (operands.scaledLhs * 1 ~/ operands.scaledRhs).toInt();
-    return Fixed.from(result, scale: operands.maxScale);
-  }
+  Fixed operator ~/(Fixed divisor) => Fixed.fromDecimal(value ~/ divisor.value,
+      scale: max(scale, divisor.scale));
 
   /// Division operator.
-  Fixed operator %(Fixed divisor) {
-    final operands = _Operands(this, divisor);
-    var result = (operands.scaledLhs * 1 % operands.scaledRhs).toInt();
-    return Fixed.from(result, scale: operands.maxScale);
-  }
+  Fixed operator %(Fixed divisor) => Fixed.fromDecimal(value % divisor.value,
+      scale: max(scale, divisor.scale));
 
   Fixed remainder(Fixed divisor) {
     return this - (this ~/ divisor) * divisor;
@@ -257,48 +278,9 @@ class Fixed implements Comparable<Fixed> {
     return Fixed.fromBigInt(minorUnits.pow(exponent), scale: scale);
   }
 
-  int toInt() {
-    final intP = integerPart;
+  int toInt() => value.toInt();
 
-    // bit length excludes sign
-    if (intP.bitLength + 1 == 64) {
-      if (intP.sign == 1) {
-        return maxInt;
-      } else {
-        return minInt;
-      }
-    }
-    return intP.toInt();
-  }
-
-  Fixed multiply(num multiplier) {
-    if (multiplier is int) {
-      return Fixed.fromDecimal(value * Decimal.fromInt(multiplier),
-          scale: scale);
-    }
-
-    if (multiplier is double) {
-      const floatingDecimalFactor = 1e14;
-      final decimalFactor = BigInt.from(100000000000000); // 1e14
-      final roundingFactor = BigInt.from(50000000000000); // 5 * 1e14
-
-      final product = minorUnits *
-          BigInt.from((multiplier.abs() * floatingDecimalFactor).round());
-
-      var result = product ~/ decimalFactor;
-      if (product.remainder(decimalFactor) >= roundingFactor) {
-        result += BigInt.one;
-      }
-      if (multiplier.isNegative) {
-        result *= -BigInt.one;
-      }
-
-      return Fixed.fromBigInt(result);
-    }
-    throw UnsupportedError(
-        'Unsupported type of multiplier: "${multiplier.runtimeType}", '
-        '(int or double are expected)');
-  }
+  Fixed multiply(num multiplier) => this * Fixed.from(multiplier);
 
   Fixed divide(num divisor) {
     return this * Fixed.from(1.0 / divisor.toDouble());
