@@ -9,11 +9,11 @@ class FixedEncoder {
 
   String decimalSeparator;
 
-  String thousandSeparator;
+  String groupSeparator;
 
   ///
   FixedEncoder(this.pattern,
-      {this.decimalSeparator = '.', this.thousandSeparator = ','});
+      {this.decimalSeparator = '.', this.groupSeparator = ','});
 
   String encode(Fixed amount) {
     String formatted;
@@ -54,7 +54,7 @@ class FixedEncoder {
 
     // extract the contiguous money components made up of 0 # , and .
     final moneyPattern = getMoneyPattern(majorPattern);
-    checkZeros(moneyPattern, thousandSeparator, minor: false);
+    checkZeros(moneyPattern, groupSeparator, minor: false);
 
     final wholeNumberPart = amount.integerPart;
 
@@ -169,7 +169,7 @@ class FixedEncoder {
     var moneyPattern = getMoneyPattern(minorPattern);
 
     /// check that the zeros are only at is at the end of the pattern.
-    checkZeros(moneyPattern, thousandSeparator, minor: true);
+    checkZeros(moneyPattern, groupSeparator, minor: true);
 
     /// If there are trailing zeros then we must ensure
     /// the final string is at least [requiredPatternWidth] or if
@@ -202,7 +202,7 @@ class FixedEncoder {
     var formattedMinorUnits =
         NumberFormat(moneyPattern).format(decimals.toInt());
 
-    /// If the lengtwe have minor digits of 4 and minorunits = 10
+    /// If the scale is 4 and minorunits = 10
     /// then the number format will produce 10 rather than 0010
     /// So we need to add leading zeros
     if (formattedMinorUnits.length < amount.scale) {
@@ -210,9 +210,9 @@ class FixedEncoder {
       formattedMinorUnits = '${'0' * leadingZeros}$formattedMinorUnits';
     }
 
+    // money pattern is short, so we need to force a truncation as
+    // NumberFormat doesn't know we are dealing with minor units.
     if (moneyPattern.length < formattedMinorUnits.length) {
-      // money pattern is short, so we need to force a truncation as
-      // NumberFormat doesn't know we are dealing with minor units.
       formattedMinorUnits =
           formattedMinorUnits.substring(0, moneyPattern.length);
     }
@@ -230,8 +230,8 @@ class FixedEncoder {
     if (formattedMinorUnits.length < moneyPattern.length) {
       formattedMinorUnits.padLeft(moneyPattern.length - formatted.length, '0');
     }
-    // Add trailing zeros.
 
+    // Add trailing zeros if the pattern width requires it
     if (requiredPatternWidth != 0) {
       formattedMinorUnits =
           formattedMinorUnits.padRight(requiredPatternWidth, '0');
@@ -242,7 +242,7 @@ class FixedEncoder {
           formattedMinorUnits.padRight(extendFormatWithZeros, '0');
     }
 
-    // replace the the money components with a single #
+    // replace the the money components in the pattern with a single #
     var compressedMinorPattern = compressMoney(minorPattern);
 
     // expand the pattern
@@ -319,9 +319,9 @@ class FixedEncoder {
     return majorPattern.replaceAll(RegExp(r'[#|0|,|\.]+'), '#');
   }
 
-  /// Check that Zeros are only at the end of the pattern unless we have thousand separators as there
+  /// Check that Zeros are only at the end of the pattern unless we have group separators as there
   /// can then be a zero at the end of each segment.
-  void checkZeros(final String moneyPattern, final String thousandSeparator,
+  void checkZeros(final String moneyPattern, final String groupSeparator,
       {required bool minor}) {
     if (!moneyPattern.contains('0')) return;
 
@@ -329,25 +329,25 @@ class FixedEncoder {
         '''The '0' pattern characters must only be at the end of the pattern for ${minor ? 'Minor' : 'Major'} Units''');
 
     // compress zeros so we have only one which should be at the end,
-    // unless we have thousand separators then we can have several 0s e.g. 0,0,0
+    // unless we have group separators then we can have several 0s e.g. 0,0,0
     final comppressedMoneyPattern = moneyPattern.replaceAll(RegExp('0+'), '0');
 
-    // last char must be a zero (i.e. thousand separater not allowed here)
+    // last char must be a zero (i.e. group separater not allowed here)
     if (comppressedMoneyPattern[comppressedMoneyPattern.length - 1] != '0') {
       throw illegalPattern;
     }
 
     // check that zeros are the trailing character.
-    // if the pattern has thousand separators then there can be more than one 0.
+    // if the pattern has group separators then there can be more than one 0.
     var zerosEnded = false;
     final len = comppressedMoneyPattern.length - 1;
     for (var i = len; i > 0; i--) {
       final char = comppressedMoneyPattern[i];
       var isValid = char == '0';
 
-      // when looking at the intial zeros a thousand separator
+      // when looking at the intial zeros a group separator
       // is consider  valid.
-      if (!zerosEnded) isValid &= char == thousandSeparator;
+      if (!zerosEnded) isValid &= char == groupSeparator;
 
       if (isValid && zerosEnded) {
         throw illegalPattern;

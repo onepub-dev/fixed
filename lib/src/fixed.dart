@@ -11,9 +11,14 @@ import 'fixed_encoder.dart';
 /// If a Fixed no. has a scale of 2 then
 /// 1 is stored as 100.
 class Fixed implements Comparable<Fixed> {
+  static const int maxInt = 0x7fffffffffffffff; // 64-bit
+  static const int minInt = 0xffffffffffffffff; // 64-bit
+
   // The value
   late final Decimal value;
-
+  
+  // If a number has a scale of 2 then
+  // 1 would be returned as 100.
   late final BigInt minorUnits = (value * Decimal.ten.pow(scale)).toBigInt();
 
   /// The scale to which we store the amount
@@ -21,12 +26,18 @@ class Fixed implements Comparable<Fixed> {
   /// two decimal places.
   final int scale;
 
-  /// Parses [amount] for a decimal value
+  static late final Fixed zero = Fixed.from(0);
+  static late final Fixed one = Fixed.from(1);
+  static late final Fixed two = Fixed.from(2);
+
+  /// Parses [amount] as a decimal value
   /// using [pattern] to interpret the string.
   ///
-  /// The [scale] expects the number of decimal
+  /// The [scale] controls the number of decimal
   /// places to be retained.
   /// If [scale] < 0 then a FixedException will be thrown.
+  /// If the [pattern] is invalid or the [amount] isn't valid then
+  /// a [FixedParseException] is thrown.
   static Fixed parse(
     String amount, {
     String pattern = '#.#',
@@ -36,11 +47,27 @@ class Fixed implements Comparable<Fixed> {
     _checkScale(scale);
     final decoder = FixedDecoder(
       pattern: pattern,
-      thousandSeparator: invertSeparator ? '.' : ',',
+      groupSeparator: invertSeparator ? '.' : ',',
       decimalSeparator: invertSeparator ? ',' : '.',
       scale: scale,
     );
     return Fixed.fromDecimal(decoder.decode(amount), scale: scale);
+  }
+
+  /// Works the same as [parse] but returns a null
+  /// if the [amount] cannot be parsed.
+  static Fixed? tryParse(
+    String amount, {
+    String pattern = '#.#',
+    int scale = 2,
+    bool invertSeparator = false,
+  }) {
+    try {
+      return Fixed.parse(amount,
+          pattern: pattern, scale: scale, invertSeparator: invertSeparator);
+    } on FixedParseException catch (e) {
+      return null;
+    }
   }
 
   /// Fixed a new fixed value from an existing one
@@ -80,7 +107,7 @@ class Fixed implements Comparable<Fixed> {
     final decoder = FixedDecoder(
       scale: scale,
       pattern: '#.#',
-      thousandSeparator: ',',
+      groupSeparator: ',',
       decimalSeparator: '.',
     );
 
@@ -130,8 +157,16 @@ class Fixed implements Comparable<Fixed> {
   /// The component of the number before the decimal point
   BigInt get integerPart => value.toBigInt();
 
+  Fixed get abs => isNegative ? -this : this;
+
   /// The component of the number after the decimal point.
+  /// The returned value will always be a +ve no.
+  /// The [integerPart] will contain the sign.
   BigInt get decimalPart => (minorUnits - integerPart * scaleFactor).abs();
+  
+  /// Returns the sign of this [Fixed] amount.
+  /// Returns 0 for zero, -1 for values less than zero and +1 for values greater than zero.
+  int get sign => value.sign;
 
   /// returns true of the value of this [MinorUnit] is zero.
   bool get isZero => value == Decimal.zero;
@@ -198,6 +233,43 @@ class Fixed implements Comparable<Fixed> {
   /// Division operator.
   Fixed operator /(Fixed other) =>
       Fixed.fromDecimal(value / other.value, scale: max(scale, other.scale));
+
+  /// Truncating division operator.
+  /// TODO: either this or / is not implemented correctly
+  Fixed operator ~/(Fixed divisor) {
+    final operands = _Operands(this, divisor);
+    var result = (operands.scaledLhs * 1 ~/ operands.scaledRhs).toInt();
+    return Fixed.from(result, scale: operands.maxScale);
+  }
+
+  /// Division operator.
+  Fixed operator %(Fixed divisor) {
+    final operands = _Operands(this, divisor);
+    var result = (operands.scaledLhs * 1 % operands.scaledRhs).toInt();
+    return Fixed.from(result, scale: operands.maxScale);
+  }
+
+  Fixed remainder(Fixed divisor) {
+    return this - (this ~/ divisor) * divisor;
+  }
+
+  Fixed pow(int exponent) {
+    return Fixed.fromBigInt(minorUnits.pow(exponent), scale: scale);
+  }
+
+  int toInt() {
+    final intP = integerPart;
+
+    // bit length excludes sign
+    if (intP.bitLength + 1 == 64) {
+      if (intP.sign == 1) {
+        return maxInt;
+      } else {
+        return minInt;
+      }
+    }
+    return intP.toInt();
+  }
 
   Fixed multiply(num multiplier) {
     if (multiplier is int) {
@@ -295,19 +367,32 @@ class Fixed implements Comparable<Fixed> {
       pattern = '#.${'#' * scale}';
     }
     final encoder =
-        FixedEncoder(pattern, decimalSeparator: '.', thousandSeparator: ',');
+        FixedEncoder(pattern, decimalSeparator: '.', groupSeparator: ',');
 
     return encoder.encode(this);
   }
 
+  ///
+  /// Formats a [Fixed] value into a String according to the
+  /// passed [pattern].
+  ///
+  /// If [invertSeparators] is true then the role of the '.' and ',' are
+  /// reversed. By default the '.' is used as the decimal separator
+  /// whilst the ',' is used as the grouping separator.
+  ///
+  /// 0 A single digit
+  /// # A single digit, omitted if the value is zero
+  /// . or , Decimal separator dependant on [invertSeparators]
+  /// - Minus sign
+  /// , or . Grouping separator dependant on [invertSeparators]
+  /// space Space character.
+  ///
   String format(String pattern, {bool invertSeparators = false}) {
     if (!invertSeparators) {
-      return FixedEncoder(pattern,
-              decimalSeparator: '.', thousandSeparator: ',')
+      return FixedEncoder(pattern, decimalSeparator: '.', groupSeparator: ',')
           .encode(this);
     } else {
-      return FixedEncoder(pattern,
-              decimalSeparator: ',', thousandSeparator: '.')
+      return FixedEncoder(pattern, decimalSeparator: ',', groupSeparator: '.')
           .encode(this);
     }
   }

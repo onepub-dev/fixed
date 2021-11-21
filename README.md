@@ -104,7 +104,7 @@ expect(t1.minorUnits.toInt(), equals(1000000.23));
 expect(t1.scale, equals(2));
 
 
-/// for countries that use . for thousand separators
+/// for countries that use . for group separators
 var t1 = Fixed.parse('1.000.000,234', pattern: '#.###,#', scale: 2, invertSeparators);
 expect(t1.minorUnits.toInt(), equals(1000000.23));
 expect(t1.scale, equals(2));
