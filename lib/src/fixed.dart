@@ -134,16 +134,19 @@ class Fixed implements Comparable<Fixed> {
   /// Creates a fixed scale decimal from [minorUnits]
   Fixed.fromDecimal(Decimal value, {this.scale = 2}) {
     _checkScale(scale);
-    this.value =
-        _rescale(value, existingScale: value.scale, targetScale: scale);
+    this.value = _rescale(
+      value,
+      existingScale: value.hasFinitePrecision ? value.scale : null,
+      targetScale: scale,
+    );
   }
 
   Decimal _rescale(
     Decimal value, {
-    required int existingScale,
+    required int? existingScale,
     required int targetScale,
   }) {
-    if (existingScale <= targetScale) {
+    if (existingScale != null && existingScale <= targetScale) {
       // no precision lost
       return value;
     }
@@ -243,36 +246,8 @@ class Fixed implements Comparable<Fixed> {
       Fixed.fromDecimal(value * other.value, scale: scale + other.scale);
 
   /// Division operator.
-  Fixed operator /(Fixed other) {
-    /// Decimal throws an infinite precision error for the likes of 1/3.
-    //    Fixed.fromDecimal(value / other.value, scale: max(scale, other.scale));
-
-    final maxScale = max(scale, other.scale);
-
-    late BigInt selfMinor;
-    BigInt otherMinor;
-    if (scale > other.scale) {
-      selfMinor = minorUnits;
-      // horribly inefficent.
-      otherMinor = Fixed.fromDecimal(
-              _rescale(other.value,
-                  existingScale: other.scale, targetScale: scale),
-              scale: maxScale)
-          .minorUnits;
-    } else {
-      otherMinor = other.minorUnits;
-      // horribly inefficent.
-      selfMinor = Fixed.fromDecimal(
-              _rescale(value, existingScale: scale, targetScale: other.scale),
-              scale: maxScale)
-          .minorUnits;
-    }
-
-    return Fixed.from(
-        (selfMinor / otherMinor) +
-            Fixed.fromMinorUnits(5, scale: maxScale + 1).toInt(),
-        scale: maxScale);
-  }
+  Fixed operator /(Fixed other) =>
+      Fixed.fromDecimal(value / other.value, scale: max(scale, other.scale));
 
   /// Truncating division operator.
   Fixed operator ~/(Fixed divisor) => Fixed.fromDecimal(value ~/ divisor.value,
