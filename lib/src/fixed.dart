@@ -28,10 +28,10 @@ class Fixed implements Comparable<Fixed> {
   /// two decimal places.
   final int scale;
 
-  static late final Fixed zero = Fixed.from(0);
-  static late final Fixed one = Fixed.from(1);
-  static late final Fixed two = Fixed.from(2);
-  static late final Fixed ten = Fixed.from(10);
+  static late final Fixed zero = Fixed.fromNum(0);
+  static late final Fixed one = Fixed.fromNum(1);
+  static late final Fixed two = Fixed.fromNum(2);
+  static late final Fixed ten = Fixed.fromNum(10);
 
   /// Parses [amount] as a decimal value
   /// The [scale] controls the number of decimal
@@ -93,10 +93,23 @@ class Fixed implements Comparable<Fixed> {
   /// Creates a Fixed scale value from decimal
   /// or integer value and stores the value with
   /// a the given [scale].
+  /// This method will throw AmountToLargeException
+  /// if the scale is > 20 or the absolute value
+  /// is greater than 10^21
+  /// This method will clip the no. of decimal places
+  /// to 20
   /// ```dart
   /// final value = Fixed.from(1.2345, scale: 2);
   /// print(value) -> 1.23
-  Fixed.from(num amount, {this.scale = 2}) {
+  /// ```
+  ///
+  /// For a decimal [amount] we throw a [AmountTooLargeException] if an [amount]
+  /// is larger 10^21  is passed in.
+  /// An [AmountTooLargeException] will be thrown if the
+  /// scale > 20.
+  /// If you need larger numbers then use one of the alternate
+  /// constructors.
+  Fixed.fromNum(num amount, {this.scale = 2}) {
     _checkScale(scale);
 
     final decoder = FixedDecoder(
@@ -106,7 +119,16 @@ class Fixed implements Comparable<Fixed> {
       decimalSeparator: '.',
     );
 
-    value = decoder.decode(amount.toStringAsFixed(scale));
+    /// toStringAsFixed is limited to a max of 20 decimal places
+    try {
+      final fixed = amount.toStringAsFixed(scale);
+      if (fixed.contains('e')) {
+        throw AmountTooLargeException('The amount must be less than 10^20');
+      }
+      value = decoder.decode(fixed);
+    } on RangeError catch (_) {
+      throw AmountTooLargeException('The maximum scale for decimals is 20.');
+    }
   }
 
   /// Creates Fixed scale decimal from [minorUnits].
@@ -116,7 +138,7 @@ class Fixed implements Comparable<Fixed> {
   /// final fixed = Fixed.fromMinorUnits(100, scale: 2)
   /// print(fixed) : 1.00
   /// ```
-  Fixed.fromMinorUnits(int minorUnits, {this.scale = 2}) {
+  Fixed.fromInt(int minorUnits, {this.scale = 2}) {
     _checkScale(scale);
     value = Decimal.fromInt(minorUnits) / Decimal.ten.pow(scale);
   }
@@ -267,10 +289,10 @@ class Fixed implements Comparable<Fixed> {
 
   int toInt() => value.toInt();
 
-  Fixed multiply(num multiplier) => this * Fixed.from(multiplier);
+  Fixed multiply(num multiplier) => this * Fixed.fromNum(multiplier);
 
   Fixed divide(num divisor) {
-    return this * Fixed.from(1.0 / divisor.toDouble());
+    return this * Fixed.fromNum(1.0 / divisor.toDouble());
   }
 
   ///  Allocation
@@ -385,4 +407,14 @@ class FixedException implements Exception {
 
   @override
   String toString() => message;
+}
+
+/// Thrown if a number larger than the supported ranges is
+/// passed in.
+/// This will only occur if you call [Fixed.fromNum] with
+/// scale > 20 or a absolute value of > 10^21
+/// If you need larger numbers then use one of the alternate
+/// constructors.
+class AmountTooLargeException extends FixedException {
+  AmountTooLargeException(String message) : super(message);
 }
