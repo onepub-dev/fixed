@@ -1,3 +1,11 @@
+# 1.0.0-beta4
+- Renamed Fixed.from to Fixed.fromNum for consistency with other ctor names. 
+- Fixed.fromNum now throws an AmountTooLargeException. 
+- Fixed.fromMinorUnits has been renamed Fixed.fromInt
+- Added tests for rescaling and rounding when rescaling.
+- change rescale to round rather than truncate as the truncation was causing unexpected results (e.g. rounding errors).
+- fix issue with decimal without precision
+
 # 1.0.0-beta3
 - changes the underlying implementation to use the decimal package
   Thanks to Alexandre Ardhuin for the significant contribution that made this possible :)
