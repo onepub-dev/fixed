@@ -1,7 +1,7 @@
 The Fixed package allows you to store and perform maths on decimal numbers
 with a fixed scale (fixed no. of decimal places).
 
-All amounts are store using the Decimal package to allow precision maths to be performed.
+All amounts are stored using the Decimal package to allow precision maths to be performed.
 
 The Fixed package allows you to have explicit control over the no. of decimals (the scale) that are stored.
 
@@ -12,8 +12,8 @@ The key difference between the Decimal and Fixed packages:
 * Most Fixed constructors take minorUnits and a scale (100 scale: 2 == 1.00)
 
 # Storing fixed amounts
-If you need to store a fixed value into a db or other store we recommend that you 
-store the value as to discrete numbers; minorUnits and scale.
+If you need to store or transmit a fixed value we recommend that you 
+store the value as two discrete numbers; minorUnits and scale.
 Storing the value using this technique guarentees no precision loss when storing, transmitting 
 or retrieving Fixed decimal values.
 
@@ -26,12 +26,16 @@ import 'package:decimal/decimal.dart';
 import 'package:fixed/fixed.dart';
 
 expect(Fixed.fromInt(1234, scale: 3).toString(), equals('1.234')); // == 1.
+
 final t3 = Fixed.fromBigInt(BigInt.from(1234), scale: 3); // == 1.234
 expect(t3.toString(), equals('1.234'));
+
 final t4 = Fixed.copyWith(t3, scale: 2); // == 1.23
 expect(t4.toString(), equals('1.23'));
+
 final t5 = Fixed.parse('1.234', scale: 3); // == 1.234
 expect(t5.toString(), equals('1.234'));
+
 final t6 = Fixed.fromDecimal(Decimal.fromInt(1), scale: 2); // == 1.00
 expect(t6.toString(), equals('1.00'));
 
@@ -47,7 +51,7 @@ The Fixed package stores no.s with a fixed scale (number of decimal places).
 If you attempt an operation on two Fixed values with different scale the result will
 mostly be the larger of the two scales.
 
-You can change the scale of a number by creating a new Fixed object with the required scale.
+You can change the scale of a number by creating a new Fixed object using `Fixed.copyWith`.
 
 Example 2
 ```dart
@@ -83,9 +87,10 @@ expect(t3.minorUnits.toInt(), equals(100000023));
 expect(t3.scale, equals(2));
 ```
 
-# Formating
+# Formatting
 
 You can also format numbers to strings
+
 Example 4
 ```dart
 var t3 = Fixed.fromInt(1234, scale: 3);

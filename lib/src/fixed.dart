@@ -21,8 +21,9 @@ class AmountTooLargeException extends FixedException {
 ///
 /// The value is stored using the minor units
 /// e.g.
-/// If a Fixed no. has a scale of 2 then
-/// 1 is stored as 100.
+/// ```dart
+/// Fixed.fromInt(100, scale: 2) == 1.00
+/// ```
 class Fixed implements Comparable<Fixed> {
   static const int maxInt = 0x7fffffffffffffff; // 64-bit
   static const int minInt = 0xffffffffffffffff; // 64-bit
@@ -44,7 +45,10 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns this as minor units.
   ///
-  /// e.g. Fixed.fromNum(1.234, scale: 3).minorUnits = 1234
+  /// e.g.
+  /// ```dart
+  /// Fixed.fromNum(1.234, scale: 3).minorUnits = 1234
+  /// ```
   late final BigInt minorUnits = (value * Decimal.ten.pow(scale)).toBigInt();
 
   /// The scale to which we store the amount.
@@ -53,7 +57,7 @@ class Fixed implements Comparable<Fixed> {
   /// two decimal places.
   final int scale;
 
-  /// Returns a new fixed value from an existing one
+  /// Returns a new [Fixed] value from an existing one
   /// changing the scale to [scale].
   factory Fixed.copyWith(Fixed fixed, {int? scale}) {
     scale ??= scale;
@@ -72,15 +76,15 @@ class Fixed implements Comparable<Fixed> {
     value = Decimal.fromBigInt(minorUnits) / Decimal.ten.pow(scale);
   }
 
-  /// Creates a fixed scale decimal from [value] with
+  /// Creates a fixed scale decimal from [amount] with
   /// the given [scale].
   ///
   /// [scale] defaults to 2 if not passed.
-  Fixed.fromDecimal(Decimal value, {this.scale = 2}) {
+  Fixed.fromDecimal(Decimal amount, {this.scale = 2}) {
     _checkScale(scale);
-    this.value = _rescale(
-      value,
-      existingScale: value.hasFinitePrecision ? value.scale : null,
+    value = _rescale(
+      amount,
+      existingScale: amount.hasFinitePrecision ? amount.scale : null,
       targetScale: scale,
     );
   }
@@ -162,10 +166,10 @@ class Fixed implements Comparable<Fixed> {
   /// returns true of the value of this is negative.
   bool get isNegative => value < Decimal.zero;
 
-  /// returns true of the value of this is positive.
+  /// returns true if the value of this is positive.
   bool get isPositive => value > Decimal.zero;
 
-  /// returns true of the value of this is zero.
+  /// returns true if the value of this is zero.
   bool get isZero => value == Decimal.zero;
 
   /// Returns 10 ^ [scale]
@@ -176,7 +180,7 @@ class Fixed implements Comparable<Fixed> {
   /// Returns 0 for zero, -1 for values less than zero and +1 for values greater than zero.
   int get sign => value.signum;
 
-  /// Returns this / [divisor].
+  /// Returns this % [divisor].
   ///
   /// The scale is the largest of the two [scale]s.
   Fixed operator %(Fixed divisor) => Fixed.fromDecimal(value % divisor.value,
@@ -189,8 +193,6 @@ class Fixed implements Comparable<Fixed> {
   Fixed operator *(Fixed multiplier) =>
       Fixed.fromDecimal(value * multiplier.value,
           scale: scale + multiplier.scale);
-
-  /// Arithmetic
 
   /// Returns this + [addition]
   ///
@@ -329,10 +331,6 @@ class Fixed implements Comparable<Fixed> {
     return this - (this ~/ divisor) * divisor;
   }
 
-  ///
-  /// Type Conversion **********************************************************
-  ///
-
   /// Returns the value as a [Decimal]
   Decimal toDecimal() => value;
 
@@ -341,6 +339,10 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns the [Fixed] value using [scale] to control the
   /// displayed number of decimal places.
+  ///
+  /// ```dart
+  /// Fixed.fromInt(1000, scale: 3).toString() == '1.000'
+  /// ```
   ///
   /// If you need to invert the separators or
   /// control the returned scale use [format].
