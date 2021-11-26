@@ -12,7 +12,7 @@ void main() {
       scale: 2, invertSeparator: true); // == 1000000.23
 
   /// us minor units
-  Fixed.fromInt(1234, scale: 3); /// == 1.234
+  Fixed.fromInt(1234, scale: 3); // == 1.234
 
   /// use default formatting
   print(fixed.toString());
