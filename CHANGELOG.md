@@ -1,3 +1,10 @@
+# 1.0.1
+- spelling grammar and formatting.
+
+# 1.0.1
+ - change Fixed() to Fixed.copyWith
+
+
 # 1.0.0-beta4
 - Renamed Fixed.from to Fixed.fromNum for consistency with other ctor names. 
 - Fixed.fromNum now throws an AmountTooLargeException. 
