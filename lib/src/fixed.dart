@@ -60,8 +60,8 @@ class Fixed implements Comparable<Fixed> {
   /// Returns a new [Fixed] value from an existing one
   /// changing the scale to [scale].
   factory Fixed.copyWith(Fixed fixed, {int? scale}) {
-    scale ??= scale;
-    _checkScale(scale!);
+    scale ??= fixed.scale;
+    _checkScale(scale);
     return Fixed.fromDecimal(
         _rescale(fixed.value, existingScale: fixed.scale, targetScale: scale),
         scale: scale);

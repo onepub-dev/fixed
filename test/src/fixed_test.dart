@@ -254,10 +254,10 @@ void main() {
 
     /// reduce the scale to 2 decimal places.
     final usDollars = Fixed.copyWith(usDollarsHighScale, scale: 2); // == 1.75
-
     expect(usDollars.minorUnits.toInt(), equals(75));
     expect(usDollars.scale, equals(2));
 
+    /// reduce the scale to 2 decimal places.
     final winnings = Fixed.fromNum(6, scale: 5); // == 6.00000
     final winners = Fixed.fromNum(2, scale: 2); // == 2.00
     final share = winnings / winners; // == 3.00000, scale = 5
@@ -268,15 +268,21 @@ void main() {
 
   test('rescale', () {
     final t1 = Fixed.parse('1.2345678', scale: 7);
-    final t2 = Fixed.copyWith(t1, scale: 2);
-    final t3 = Fixed.copyWith(t2, scale: 7);
 
+    final t2 = Fixed.copyWith(t1, scale: 2);
     expect(t2.integerPart, equals(BigInt.from(1)));
     expect(t2.decimalPart, equals(BigInt.from(23)));
     expect(t2.scale, equals(2));
+
+    final t3 = Fixed.copyWith(t2, scale: 7);
     expect(t3.integerPart, equals(BigInt.from(1)));
     expect(t3.decimalPart, equals(BigInt.from(2300000)));
     expect(t3.scale, equals(7));
+
+    final t4 = Fixed.copyWith(t1);
+    expect(t4.integerPart, equals(BigInt.from(1)));
+    expect(t4.decimalPart, equals(BigInt.from(2345678)));
+    expect(t4.scale, equals(7));
   });
 
   test('rescale - rounding', () {
