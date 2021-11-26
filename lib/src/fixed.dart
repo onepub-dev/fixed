@@ -84,10 +84,12 @@ class Fixed implements Comparable<Fixed> {
 
   /// Fixed a new fixed value from an existing one
   /// adjusting the scale.
-  Fixed(Fixed fixed, {this.scale = 2}) {
-    _checkScale(scale);
-    value =
-        _rescale(fixed.value, existingScale: fixed.scale, targetScale: scale);
+  factory Fixed.copyWith(Fixed fixed, {int? scale}) {
+    scale ??= scale;
+    _checkScale(scale!);
+    return Fixed.fromDecimal(
+        _rescale(fixed.value, existingScale: fixed.scale, targetScale: scale),
+        scale: scale);
   }
 
   /// Creates a Fixed scale value from decimal
@@ -163,7 +165,7 @@ class Fixed implements Comparable<Fixed> {
     );
   }
 
-  Decimal _rescale(
+  static Decimal _rescale(
     Decimal value, {
     required int? existingScale,
     required int targetScale,
