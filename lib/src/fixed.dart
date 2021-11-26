@@ -369,19 +369,19 @@ class Fixed implements Comparable<Fixed> {
   /// Formats a [Fixed] value into a String according to the
   /// passed [pattern].
   ///
-  /// If [invertSeparators] is true then the role of the '.' and ',' are
+  /// If [invertSeparator] is true then the role of the '.' and ',' are
   /// reversed. By default the '.' is used as the decimal separator
   /// whilst the ',' is used as the grouping separator.
   ///
   /// 0 A single digit
   /// # A single digit, omitted if the value is zero
-  /// . or , Decimal separator dependant on [invertSeparators]
+  /// . or , Decimal separator dependant on [invertSeparator]
   /// - Minus sign
-  /// , or . Grouping separator dependant on [invertSeparators]
+  /// , or . Grouping separator dependant on [invertSeparator]
   /// space Space character.
   ///
-  String format(String pattern, {bool invertSeparators = false}) {
-    if (!invertSeparators) {
+  String format(String pattern, {bool invertSeparator = false}) {
+    if (!invertSeparator) {
       return FixedEncoder(pattern, decimalSeparator: '.', groupSeparator: ',')
           .encode(this);
     } else {
