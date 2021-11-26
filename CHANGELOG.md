@@ -1,3 +1,6 @@
+# 1.0.2
+- Fixed a bug in Fixed.copyWith where if the scale wasn't passed the existing scale wasn't retained.
+
 # 1.0.1
 - spelling grammar and formatting.
 

@@ -1,7 +1,7 @@
 name: fixed
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/bsutton/fixed
-description: 'Fixed scale decimal numbers. Fixed.parse(\\"1.234\\", scale: 2).formatIntl(\\"en-AUS\\") == 1.23'
+description: 'Fixed scale decimal numbers. Fixed.parse(\\\"1.234\\\", scale: 2).formatIntl(\\\"en-AUS\\\") == 1.23'
 repository: https://github.com/bsutton/fixed
 environment: 
   sdk: '>=2.14.4 <3.0.0'
