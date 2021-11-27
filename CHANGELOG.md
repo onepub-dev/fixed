@@ -1,3 +1,7 @@
+# 1.0.3
+- reduce the dart minimum version from 2.14 to 2.12
+- formatting
+
 # 1.0.2
 - Fixed a bug in Fixed.copyWith where if the scale wasn't passed the existing scale wasn't retained.
 
