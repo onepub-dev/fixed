@@ -7,8 +7,6 @@ import 'package:intl/intl.dart';
 import 'fixed_decoder.dart';
 import 'fixed_encoder.dart';
 
-import 'consts.dart' as platform_consts;
-
 /// Thrown if a number larger than the supported ranges is
 /// passed in.
 /// This will only occur if you call [Fixed.fromNum] with
@@ -27,8 +25,8 @@ class AmountTooLargeException extends FixedException {
 /// Fixed.fromInt(100, scale: 2) == 1.00
 /// ```
 class Fixed implements Comparable<Fixed> {
-  static const int maxInt = platform_consts.maxInt;
-  static const int minInt = platform_consts.minInt;
+  static const int maxInt = 0x7fffffffffffffff; // 64-bit
+  static const int minInt = 0xffffffffffffffff; // 64-bit
 
   // The value
   static late final Fixed zero = Fixed.fromNum(0);

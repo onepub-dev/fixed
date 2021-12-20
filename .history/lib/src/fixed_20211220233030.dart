@@ -27,8 +27,8 @@ class AmountTooLargeException extends FixedException {
 /// Fixed.fromInt(100, scale: 2) == 1.00
 /// ```
 class Fixed implements Comparable<Fixed> {
-  static const int maxInt = platform_consts.maxInt;
-  static const int minInt = platform_consts.minInt;
+  static const int maxInt = platform_consts.maxInt; // 64-bit
+  static const int minInt = platform_consts.minInt; // 64-bit
 
   // The value
   static late final Fixed zero = Fixed.fromNum(0);
