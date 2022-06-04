@@ -81,7 +81,7 @@ void main() {
   });
 
   test('example 7', () {
-    final t1 = Fixed.fromNum(1.23);
+    final t1 = Fixed.fromNum(1.23, scale: 2);
     final t2 = Fixed.fromInt(123, scale: 2);
     final t3 = Fixed.fromBigInt(BigInt.from(1234), scale: 3);
 

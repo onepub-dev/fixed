@@ -3,12 +3,17 @@ import 'package:test/test.dart';
 
 void main() {
   test('parse', () {
-    validate(Fixed.parse('1'), sign: 1, integer: 1, decimal: 0, scale: 2);
-    validate(Fixed.parse('1.0'), sign: 1, integer: 1, decimal: 0, scale: 2);
+    validate(Fixed.parse('1'), sign: 1, integer: 1, decimal: 0, scale: 0);
+    validate(Fixed.parse('1.0'), sign: 1, integer: 1, decimal: 0, scale: 1);
 
-    validate(Fixed.parse('1.1'), sign: 1, integer: 1, decimal: 10, scale: 2);
+    validate(Fixed.parse('1.1'), sign: 1, integer: 1, decimal: 1, scale: 1);
+    validate(Fixed.parse('1.10'), sign: 1, integer: 1, decimal: 10, scale: 2);
 
     validate(Fixed.parse('1.11'), sign: 1, integer: 1, decimal: 11, scale: 2);
+    validate(Fixed.parse('1.111'), sign: 1, integer: 1, decimal: 111, scale: 3);
+    validate(Fixed.parse('1.1234567890123456789'),
+        sign: 1, integer: 1, decimal: 1234567890123456789, scale: 19);
+
     validate(Fixed.parse('1.11', scale: 3),
         sign: 1, integer: 1, decimal: 110, scale: 3);
 

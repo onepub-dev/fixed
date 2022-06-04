@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 
 import 'fixed.dart';
 
-/// Encodes a monetary value based on a pattern.
+/// Encodes a fixed value based on a pattern.
 class FixedEncoder {
   /// the pattern to encode to.
   String pattern;
@@ -16,7 +16,7 @@ class FixedEncoder {
       {this.decimalSeparator = '.', this.groupSeparator = ','});
 
   String encode(Fixed amount) {
-    String formatted;
+    // String formatted;
 
     final decimalSeperatorCount = decimalSeparator.allMatches(pattern).length;
 
@@ -26,26 +26,201 @@ class FixedEncoder {
           "separator '$decimalSeparator'");
     }
 
-    var decimalSeparatorIndex = pattern.indexOf(decimalSeparator);
+    // var decimalSeparatorIndex = pattern.indexOf(decimalSeparator);
 
-    var hasMinor = true;
-    if (decimalSeparatorIndex == -1) {
-      decimalSeparatorIndex = pattern.length;
-      hasMinor = false;
+    // var hasMinor = true;
+    // if (decimalSeparatorIndex == -1) {
+    //   decimalSeparatorIndex = pattern.length;
+    //   hasMinor = false;
+    // }
+
+    // final majorPattern = pattern.substring(0, decimalSeparatorIndex);
+
+    // formatted = formatMajorPart(amount, majorPattern);
+    // if (hasMinor) {
+    //   final minorPattern = pattern.substring(decimalSeparatorIndex + 1);
+    //   final minorPart = formatMinorPart(amount, minorPattern);
+    //   if (minorPart.isNotEmpty) {
+    //     formatted += decimalSeparator + formatMinorPart(amount, minorPattern);
+    //   }
+    // }
+
+    // return formatted;
+    return format2(amount, pattern);
+  }
+
+  String format2(Fixed amount, final String pattern) {
+    var whole = amount.minorUnits.toString();
+
+    /// we will add the -ve when we know where it is to be placed.
+    if (whole.startsWith('-')) {
+      whole = whole.substring(1);
     }
 
-    final majorPattern = pattern.substring(0, decimalSeparatorIndex);
+    var decimalStart = whole.length - amount.scale;
+    var integerPart = whole.substring(0, decimalStart);
+    var decimalPart = whole.substring(decimalStart);
 
-    formatted = formatMajorPart(amount, majorPattern);
-    if (hasMinor) {
-      final minorPattern = pattern.substring(decimalSeparatorIndex + 1);
-      final minorPart = formatMinorPart(amount, minorPattern);
-      if (minorPart.isNotEmpty) {
-        formatted += decimalSeparator + formatMinorPart(amount, minorPattern);
+    var decimalSeparatorIndex = pattern.indexOf(decimalSeparator);
+
+    var hasDecimalPart = decimalSeparatorIndex != -1;
+
+    var integerPatternPart =
+        hasDecimalPart ? pattern.substring(0, decimalSeparatorIndex) : pattern;
+
+    // format integer. We build the no. in from right to left
+    String integerAmount = '';
+    if (integerPatternPart.isNotEmpty) {
+      integerAmount =
+          _formatIntegerPart(integerPatternPart, integerPart, integerAmount);
+    }
+
+    String decimalAmount = '';
+    if (hasDecimalPart) {
+      decimalAmount = _formatDecimalPart(
+          pattern, decimalSeparatorIndex, decimalPart, decimalAmount);
+    }
+
+    String result = '';
+    if (integerAmount.isNotEmpty) {
+      result = integerAmount;
+    }
+    if (decimalAmount.isNotEmpty) {
+      result += decimalSeparator;
+    }
+    if (decimalAmount.isNotEmpty) {
+      result += decimalAmount;
+    }
+
+    if (amount.isNegative) {
+      if (integerAmount.isEmpty) {
+        result = '0' + result;
+      }
+      result = '-$result';
+    }
+
+    return result;
+  }
+
+  String _formatIntegerPart(
+      String integerPatternPart, String integerPart, String integerAmount) {
+    var patternIndex = integerPatternPart.length - 1;
+    String lastIntegerPattern = '#';
+    for (var integerIndex = integerPart.length - 1;
+        integerIndex >= 0;
+        integerIndex--) {
+      var patternChar = lastIntegerPattern;
+      if (patternIndex >= 0) {
+        patternChar = integerPatternPart[patternIndex--];
+        lastIntegerPattern = patternChar;
+      }
+
+      switch (patternChar) {
+        case '#':
+          integerAmount = integerPart[integerIndex] + integerAmount;
+          break;
+        case '0':
+          integerAmount = integerPart[integerIndex] + integerAmount;
+          break;
+
+        // just echo group separators into the stream.
+        case ',':
+        case '.':
+          integerAmount = patternChar + integerAmount;
+          break;
       }
     }
 
-    return formatted;
+    if (patternIndex >= 0) {
+      // we have to keep process the pattern index incase the user
+      // has leading '0' which must always be output.
+      var exitLoop = false;
+      for (; patternIndex >= 0 && exitLoop == false; patternIndex--) {
+        var patternChar = integerPatternPart[patternIndex];
+        switch (patternChar) {
+          case '0':
+            integerAmount = patternChar + integerAmount;
+            break;
+          case '#':
+            exitLoop = true;
+            break;
+
+          /// group separators
+          case '.':
+          case ',':
+            // We only output group separators if there ares still '0' in the pattern.
+            if (patternIndex > 1 && integerPatternPart[patternIndex] == '0') {
+              integerAmount = patternChar + integerAmount;
+            } else {
+              exitLoop = true;
+            }
+            break;
+        }
+      }
+    }
+    return integerAmount;
+  }
+
+  String _formatDecimalPart(String pattern, int decimalSeparatorIndex,
+      String decimalPart, String decimalAmount) {
+    var decimalPatternPart = pattern.substring(decimalSeparatorIndex + 1);
+
+    // format decimal.
+    var decimalPatternIndex = 0;
+    for (var decimalIndex = 0;
+        decimalIndex < decimalPart.length;
+        decimalIndex++) {
+      // when the decimal pattern finishes so do we.
+      if (decimalPatternIndex == decimalPatternPart.length) break;
+      var patternChar = decimalPatternPart[decimalPatternIndex++];
+
+      switch (patternChar) {
+        case '#':
+          decimalAmount += decimalPart[decimalIndex];
+          break;
+        case '0':
+          decimalAmount += decimalPart[decimalIndex];
+          break;
+
+        // just echo group separators into the stream.
+        case ',':
+        case '.':
+          decimalAmount += patternChar;
+          break;
+      }
+    }
+
+    if (decimalPatternIndex < decimalPatternPart.length) {
+      // we have to keep process the pattern index incase the user
+      // has trailing '0' which must always be output.
+      var exitLoop = false;
+      for (;
+          decimalPatternIndex < decimalPatternPart.length && exitLoop == false;
+          decimalPatternIndex++) {
+        var patternChar = decimalPatternPart[decimalPatternIndex];
+        switch (patternChar) {
+          case '0':
+            decimalAmount += patternChar;
+            break;
+          case '#':
+            exitLoop = true;
+            break;
+
+          /// group separators
+          case '.':
+          case ',':
+            // We only output group separators if there ares still '0' in the pattern.
+            if (decimalPatternIndex < decimalPatternPart.length &&
+                decimalPatternPart[decimalPatternIndex] == '0') {
+              decimalAmount += patternChar;
+            } else {
+              exitLoop = true;
+            }
+            break;
+        }
+      }
+    }
+    return decimalAmount;
   }
 
   /// Formats the major part of the [amount].
@@ -111,54 +286,6 @@ class FixedEncoder {
       formattedMajorUnits = formattedMajorUnits.replaceAll(',', '.');
     }
     return formattedMajorUnits;
-  }
-
-  /// Just extract the number specific format chacters leaving out
-  /// currency and symbols
-  /// MinorUnits use trailing zeros, MajorUnits use leading zeros.
-  String getMoneyPattern(String pattern) {
-    var foundMoney = false;
-    var inMoney = false;
-    var moneyPattern = '';
-    for (var i = 0; i < pattern.length; i++) {
-      final char = pattern[i];
-      switch (char) {
-        case '#':
-          inMoney = true;
-          foundMoney = true;
-
-          isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
-          moneyPattern += '#';
-          break;
-        case '0':
-          isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
-          moneyPattern += '0';
-          inMoney = true;
-          foundMoney = true;
-          break;
-        case ',':
-          isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
-          moneyPattern += ',';
-          inMoney = true;
-          foundMoney = true;
-
-          break;
-        case '.':
-          isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
-          moneyPattern += '.';
-          inMoney = true;
-          foundMoney = true;
-
-          break;
-        case ' ':
-          inMoney = false;
-          break;
-        default:
-          throw IllegalPatternException(
-              "The pattern contains an unknown character: '$char'");
-      }
-    }
-    return moneyPattern;
   }
 
   ///
@@ -265,6 +392,54 @@ class FixedEncoder {
     }
 
     return formatted;
+  }
+
+  /// Just extract the number specific format chacters leaving out
+  /// currency and symbols
+  /// MinorUnits use trailing zeros, MajorUnits use leading zeros.
+  String getMoneyPattern(String pattern) {
+    var foundMoney = false;
+    var inMoney = false;
+    var moneyPattern = '';
+    for (var i = 0; i < pattern.length; i++) {
+      final char = pattern[i];
+      switch (char) {
+        case '#':
+          inMoney = true;
+          foundMoney = true;
+
+          isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
+          moneyPattern += '#';
+          break;
+        case '0':
+          isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
+          moneyPattern += '0';
+          inMoney = true;
+          foundMoney = true;
+          break;
+        case ',':
+          isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
+          moneyPattern += ',';
+          inMoney = true;
+          foundMoney = true;
+
+          break;
+        case '.':
+          isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
+          moneyPattern += '.';
+          inMoney = true;
+          foundMoney = true;
+
+          break;
+        case ' ':
+          inMoney = false;
+          break;
+        default:
+          throw IllegalPatternException(
+              "The pattern contains an unknown character: '$char'");
+      }
+    }
+    return moneyPattern;
   }
 
   /// counts the no. of # and 0s in the pattern before the decimal seperator.

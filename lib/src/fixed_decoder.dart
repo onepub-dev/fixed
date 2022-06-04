@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:decimal/decimal.dart';
-
 /// Decodes a monetary amount based on a pattern.
 class FixedDecoder {
   /// the pattern used to decode the amount.
@@ -10,21 +8,18 @@ class FixedDecoder {
   final String decimalSeparator;
   final String groupSeparator;
 
-  final int scale;
-
   /// ctor
   FixedDecoder({
     required this.pattern,
     required this.groupSeparator,
     required this.decimalSeparator,
-    required this.scale,
   }) {
     ArgumentError.checkNotNull(pattern, 'pattern');
   }
 
   /// Parses [monetaryValue] and returns
   /// the value as a BigInt holding the minorUnits
-  Decimal decode(final String monetaryValue) {
+  MinorUnitsAndScale decode(final String monetaryValue, int? scale) {
     var majorUnits = BigInt.zero;
     var minorUnits = BigInt.zero;
 
@@ -49,7 +44,9 @@ class FixedDecoder {
           }
           if (seenMajor) {
             if (valueQueue.isNotEmpty) {
-              minorUnits = valueQueue.takeMinorDigits(scale);
+              var minorDigits = valueQueue.takeMinorDigits(scale);
+              scale = minorDigits.scale;
+              minorUnits = minorDigits.value;
             }
           } else {
             majorUnits = valueQueue.takeMajorDigits();
@@ -78,9 +75,8 @@ class FixedDecoder {
       }
     }
 
-    final value = Decimal.fromBigInt(majorUnits) +
-        Decimal.fromBigInt(minorUnits) / Decimal.ten.pow(scale);
-    return isNegative ? -value : value;
+    final value = majorUnits * BigInt.from(10).pow(scale ?? 0) + minorUnits;
+    return MinorUnitsAndScale(isNegative ? -value : value, scale ?? 0);
   }
 
   ///
@@ -174,7 +170,7 @@ class ValueQueue {
   /// return all of the digits from the current position
   /// until we find a non-digit.
   BigInt takeMajorDigits() {
-    return BigInt.parse(_takeDigits());
+    return BigInt.parse(takeDigits());
   }
 
   /// true if the passed character is a digit.
@@ -185,26 +181,28 @@ class ValueQueue {
   /// Takes any remaining digits as minor digits.
   /// If there are less digits than [Currency.scale]
   /// then we pad the number with zeros before we convert it to an it.
-  ///
-  /// e.g.
-  /// 1.2 -> 1.20
-  /// 1.21 -> 1.21
-  BigInt takeMinorDigits(int scale) {
-    var digits = _takeDigits();
+  /// If scale is null then we use the no. of digits to
+  /// set the scale.
+  _MinorDigits takeMinorDigits(int? scale) {
+    var digits = takeDigits();
 
-    if (digits.length < scale) {
-      digits += '0' * max(0, scale - digits.length);
+    if (scale == null) {
+      scale = digits.length;
+    } else {
+      if (digits.length < scale) {
+        digits += '0' * max(0, scale - digits.length);
+      }
+
+      // we have no way of storing less than a minorDigit is this a problem?
+      if (digits.length > scale) {
+        digits = digits.substring(0, scale);
+      }
     }
 
-    // we have no way of storing less than a minorDigit is this a problem?
-    if (digits.length > scale) {
-      digits = digits.substring(0, scale);
-    }
-
-    return BigInt.parse(digits);
+    return _MinorDigits(BigInt.parse(digits), scale);
   }
 
-  String _takeDigits() {
+  String takeDigits() {
     var digits = ''; //  = lastTake;
 
     while (index < monetaryValue.length &&
@@ -224,6 +222,18 @@ class ValueQueue {
     }
     return digits;
   }
+}
+
+class _MinorDigits {
+  _MinorDigits(this.value, this.scale);
+  BigInt value;
+  int scale;
+}
+
+class MinorUnitsAndScale {
+  MinorUnitsAndScale(this.value, this.scale);
+  BigInt value;
+  int scale;
 }
 
 /// Exception thrown when a parse fails.
