@@ -1,3 +1,9 @@
+# 2.0.0-beta.1
+- updated the home/repository links to onepub-dev.
+- Breaking: Change the default scale when creating a Fixed from a 'num' from 2 to 16.  This is an attempt to make Fixed values built from a num work as the user expects it to. 
+- Rewrote the formatter to remove its reliance on NumberFormat as  it can't handle large BigInts.
+- Internal storage has moved from Decimal to BigInt to make support easier. Possible performance gain as well.
+
 # 1.1.0
 - Fixed #7 We now include platform specific defs of max and min ints as the web version of dart ints are only 53 bits.
 # 1.0.3
