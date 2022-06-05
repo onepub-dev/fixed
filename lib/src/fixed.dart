@@ -278,7 +278,6 @@ class Fixed implements Comparable<Fixed> {
     return Fixed.fromNum(numResult, scale: targetScale);
   }
 
-
   /// Returns  this / [divisor].
   ///
   /// The scale is left unchanged.
@@ -365,7 +364,6 @@ class Fixed implements Comparable<Fixed> {
       return minorUnits.compareTo(other.minorUnits);
     }
   }
-
 
   /// Formats a [Fixed] value into a String according to the
   /// passed [pattern].
