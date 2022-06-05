@@ -336,4 +336,17 @@ void main() {
     result.toString();
     expect(result, equals(Fixed.fromNum(100, scale: 0)));
   });
+
+  test('allocate', () {
+    var t1 = Fixed.parse('23.84');
+    List<Fixed> spread = t1.allocationAccordingTo([
+      1,
+      4,
+      2,
+    ]);
+
+    for (var v in spread) {
+      print(v);
+    }
+  });
 }

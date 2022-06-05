@@ -278,6 +278,14 @@ class Fixed implements Comparable<Fixed> {
     return Fixed.fromNum(numResult, scale: targetScale);
   }
 
+
+  /// Returns  this / [divisor].
+  ///
+  /// The scale is left unchanged.
+  Fixed divide(num divisor) {
+    return this * Fixed.fromNum(1.0 / divisor.toDouble());
+  }
+
   /// Returns the this ~/ [divisor]
   ///
   /// This is a truncating division operator.
@@ -358,12 +366,6 @@ class Fixed implements Comparable<Fixed> {
     }
   }
 
-  /// Returns  this / [divisor].
-  ///
-  /// The scale is left unchanged.
-  Fixed divide(num divisor) {
-    return this * Fixed.fromNum(1.0 / divisor.toDouble());
-  }
 
   /// Formats a [Fixed] value into a String according to the
   /// passed [pattern].
