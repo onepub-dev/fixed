@@ -1,3 +1,9 @@
+/* Copyright (C) Brett Sutton - All Rights Reserved
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
+ */
+
 import 'fixed.dart';
 
 /// Encodes a fixed value based on a pattern.
