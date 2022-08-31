@@ -1,3 +1,7 @@
+# 2.1.0
+- upgraded to decimal 2.2.
+- made takeMinorDigits private as its not part of the public api.
+
 # 2.0.0-beta.1
 - updated the home/repository links to onepub-dev.
 - Breaking: Change the default scale when creating a Fixed from a 'num' from 2 to 16.  This is an attempt to make Fixed values built from a num work as the user expects it to. 
