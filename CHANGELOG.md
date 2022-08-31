@@ -1,3 +1,6 @@
+# 3.0.0
+- BREAKING: change the default toString format to include a leading zero for numbers less than 1.  This is inline with user expectations but a change for the prior releases.
+
 # 2.1.1
 - Fixed a bug in the encoder when the value is less than 1.
   This was causing an array out of bounds when formatting small amounts.
