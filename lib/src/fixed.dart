@@ -38,16 +38,16 @@ class Fixed implements Comparable<Fixed> {
   static const int _maxScale = 20;
 
   // The value
-  static late final Fixed zero = Fixed.fromNum(0);
+  static final Fixed zero = Fixed.fromNum(0);
 
   /// The value 1 with [scale] = 2
-  static late final Fixed one = Fixed.fromNum(1);
+  static final Fixed one = Fixed.fromNum(1);
 
   /// The value 2 with [scale] = 2
-  static late final Fixed two = Fixed.fromNum(2);
+  static final Fixed two = Fixed.fromNum(2);
 
   /// The value 10 with [scale] = 2
-  static late final Fixed ten = Fixed.fromNum(10);
+  static final Fixed ten = Fixed.fromNum(10);
 
   /// The [value] of this stored as minorUnits in a [BigInt].
   /// If the scale is 2 then 1 is stored as 100
@@ -95,7 +95,7 @@ class Fixed implements Comparable<Fixed> {
     _checkScale(scale);
     minorUnits = _rescale(
       (amount * Decimal.ten.pow(amount.scale)).toBigInt(),
-      existingScale: amount.hasFinitePrecision ? amount.scale : 16,
+      existingScale: amount.scale,
       targetScale: scale,
     );
   }
@@ -309,13 +309,13 @@ class Fixed implements Comparable<Fixed> {
 
   /// less than operator
   bool operator <(Fixed other) {
-    final scaled = scale2(this, other);
+    final scaled = _scale2(this, other);
     return scaled.one.minorUnits < scaled.two.minorUnits;
   }
 
   /// less than or equal operator
   bool operator <=(Fixed other) {
-    final scaled = scale2(this, other);
+    final scaled = _scale2(this, other);
     return scaled.one.minorUnits <= scaled.two.minorUnits;
   }
 
@@ -323,19 +323,19 @@ class Fixed implements Comparable<Fixed> {
   /// the same value irrespective of scale.
   @override
   bool operator ==(covariant Fixed other) {
-    final scaled = scale2(this, other);
+    final scaled = _scale2(this, other);
     return scaled.one.minorUnits == scaled.two.minorUnits;
   }
 
   /// greater than operator
   bool operator >(Fixed other) {
-    final scaled = scale2(this, other);
+    final scaled = _scale2(this, other);
     return scaled.one.minorUnits > scaled.two.minorUnits;
   }
 
   /// greater than or equal operator
   bool operator >=(Fixed other) {
-    final scaled = scale2(this, other);
+    final scaled = _scale2(this, other);
     return scaled.one.minorUnits >= scaled.two.minorUnits;
   }
 
@@ -577,7 +577,7 @@ class Fixed implements Comparable<Fixed> {
     return minorUnits;
   }
 
-  _Scaled2 scale2(Fixed fixed, Fixed other) {
+  _Scaled2 _scale2(Fixed fixed, Fixed other) {
     if (fixed.scale > other.scale) {
       return _Scaled2(
           fixed,

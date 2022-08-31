@@ -98,7 +98,7 @@ class FixedEncoder {
 
     if (amount.isNegative) {
       if (integerAmount.isEmpty) {
-        result = '0' + result;
+        result = '0$result';
       }
       result = '-$result';
     }

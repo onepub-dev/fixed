@@ -6,6 +6,7 @@
 
 import 'dart:math';
 
+import 'package:decimal/decimal.dart';
 import 'package:fixed/src/fixed.dart';
 import 'package:test/test.dart';
 
@@ -70,6 +71,14 @@ void main() {
       expect(t6.minorUnits.toInt(), equals(11234567890000000));
       expect(t6.integerPart.toInt(), equals(1));
       expect(t6.scale, equals(16));
+
+      final t7 = Fixed.fromDecimal(
+          (Decimal.fromInt(1) / Decimal.fromInt(3))
+              .toDecimal(scaleOnInfinitePrecision: 16),
+          scale: 2); // == 1.00
+      expect(t7.minorUnits.toInt(), equals(33));
+      expect(t7.integerPart.toInt(), equals(0));
+      expect(t7.scale, equals(2));
     });
 
     test('Fixed.fromMinorUnits', () {
