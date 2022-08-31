@@ -566,10 +566,11 @@ class Fixed implements Comparable<Fixed> {
       return minorUnits * BigInt.from(10).pow(targetScale - existingScale);
     }
     if (existingScale > targetScale) {
+      final rounding = minorUnits.isNegative ? -0.5 : 0.5;
       // reduce scale
       return BigInt.from(
           (minorUnits / BigInt.from(10).pow(existingScale - targetScale)) +
-              0.5);
+              rounding);
     }
     // var coef = BigInt.from(10).pow(targetScale);
     // return (minorUnits * coef).round() / coef;

@@ -136,6 +136,15 @@ void main() {
 
     expect(usDollarsHighScale.minorUnits.toInt(), equals(754800));
     expect(usDollarsHighScale.scale, equals(7));
+
+    expect(Fixed.fromInt(-200, scale: 2) * Fixed.fromInt(100, scale: 2),
+        equals(Fixed.fromInt(-200, scale: 2)));
+
+    expect(Fixed.fromInt(-2, scale: 2) * Fixed.fromInt(100, scale: 2),
+        equals(Fixed.fromInt(-2, scale: 2)));
+
+    expect(Fixed.fromInt(-2, scale: 2) * Fixed.fromInt(-100, scale: 2),
+        equals(Fixed.fromInt(2, scale: 2)));
   });
 
   test('division', () {
