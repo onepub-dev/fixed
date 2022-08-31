@@ -50,7 +50,7 @@ class FixedDecoder {
           }
           if (seenMajor) {
             if (valueQueue.isNotEmpty) {
-              var minorDigits = valueQueue.takeMinorDigits(scale);
+              var minorDigits = valueQueue._takeMinorDigits(scale);
               scale = minorDigits.scale;
               minorUnits = minorDigits.value;
             }
@@ -189,7 +189,7 @@ class ValueQueue {
   /// then we pad the number with zeros before we convert it to an it.
   /// If scale is null then we use the no. of digits to
   /// set the scale.
-  _MinorDigits takeMinorDigits(int? scale) {
+  _MinorDigits _takeMinorDigits(int? scale) {
     var digits = takeDigits();
 
     if (scale == null) {
