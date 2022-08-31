@@ -1,3 +1,6 @@
+# 2.2.1
+- Fixed rouding problem when multiplying -ve numbers.
+
 # 2.2.0
 - BREAKING: change the default toString format to include a leading zero for numbers less than 1.  This is inline with user expectations but a change for the prior releases.
 
