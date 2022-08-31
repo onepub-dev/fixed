@@ -1,3 +1,7 @@
+# 2.1.1
+- Fixed a bug in the encoder when the value is less than 1.
+  This was causing an array out of bounds when formatting small amounts.
+
 # 2.1.0
 - upgraded to decimal 2.2.
 - made takeMinorDigits private as its not part of the public api.
