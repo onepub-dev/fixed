@@ -449,7 +449,7 @@ class Fixed implements Comparable<Fixed> {
     if (scale == 0) {
       pattern = '#';
     } else {
-      pattern = '#.${'#' * scale}';
+      pattern = '0.${'#' * scale}';
     }
     final encoder =
         FixedEncoder(pattern, decimalSeparator: '.', groupSeparator: ',');

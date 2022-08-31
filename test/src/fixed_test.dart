@@ -285,7 +285,7 @@ void main() {
 
   test('examples', () {
     final rate = Fixed.fromNum(0.75486, scale: 5); // == 0.75486
-    expect(rate.toString(), equals('.75486'));
+    expect(rate.toString(), equals('0.75486'));
     expect(rate.format('0.#####'), equals('0.75486'));
     final auDollars = Fixed.fromNum(1, scale: 2); // == 1.00
     final usDollarsHighScale = auDollars * rate; // ==0.7548600, scale = 7
