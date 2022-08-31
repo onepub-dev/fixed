@@ -15,5 +15,9 @@ void main() {
 
 // Format using default locale
     expect(euFormat.formatIntl(), equals('1,000,000.23'));
+
+    expect(Fixed.fromInt(300, scale: 2).toString(), '3.00');
+    expect(Fixed.fromInt(30, scale: 2).toString(), '.30');
+    expect(Fixed.fromInt(3, scale: 2).toString(), '.03');
   });
 }

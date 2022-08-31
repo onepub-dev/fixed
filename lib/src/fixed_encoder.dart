@@ -61,6 +61,10 @@ class FixedEncoder {
       whole = whole.substring(1);
     }
 
+    if (whole.length < amount.scale) {
+      whole = whole.padLeft(amount.scale, '0');
+    }
+
     var decimalStart = whole.length - amount.scale;
     var integerPart = whole.substring(0, decimalStart);
     var decimalPart = whole.substring(decimalStart);
