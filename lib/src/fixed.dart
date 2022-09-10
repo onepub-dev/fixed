@@ -94,7 +94,7 @@ class Fixed implements Comparable<Fixed> {
   Fixed.fromDecimal(Decimal amount, {this.scale = 16}) {
     _checkScale(scale);
     minorUnits = _rescale(
-      (amount * Decimal.ten.pow(amount.scale)).toBigInt(),
+      (amount * Decimal.ten.pow(amount.scale).toDecimal()).toBigInt(),
       existingScale: amount.scale,
       targetScale: scale,
     );
