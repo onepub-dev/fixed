@@ -17,8 +17,9 @@ void main() {
 
     validate(Fixed.parse('1.11'), sign: 1, integer: 1, decimal: 11, scale: 2);
     validate(Fixed.parse('1.111'), sign: 1, integer: 1, decimal: 111, scale: 3);
-    validate(Fixed.parse('1.1234567890123456789'),
-        sign: 1, integer: 1, decimal: 1234567890123456789, scale: 19);
+    // restriced by largest safe java script integer.
+    validate(Fixed.parse('1.1234567890123456'),
+        sign: 1, integer: 1, decimal: 1234567890123456, scale: 16);
 
     validate(Fixed.parse('1.11', scale: 3),
         sign: 1, integer: 1, decimal: 110, scale: 3);

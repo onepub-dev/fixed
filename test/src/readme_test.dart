@@ -40,22 +40,22 @@ void main() {
   });
 
   test('example 3', () {
-    var t1 = Fixed.parse('1.234', scale: 2);
+    final t1 = Fixed.parse('1.234', scale: 2);
     expect(t1.minorUnits.toInt(), equals(123));
     expect(t1.scale, equals(2));
 
-    var t2 = Fixed.parse('1,000,000.234', scale: 2);
+    final t2 = Fixed.parse('1,000,000.234', scale: 2);
     expect(t2.minorUnits.toInt(), equals(100000023));
     expect(t2.scale, equals(2));
 
     /// for countries that use . for group separators
-    var t3 = Fixed.parse('1.000.000,234', scale: 2, invertSeparator: true);
+    final t3 = Fixed.parse('1.000.000,234', scale: 2, invertSeparator: true);
     expect(t3.minorUnits.toInt(), equals(100000023));
     expect(t3.scale, equals(2));
   });
 
   test('example 4', () {
-    var t3 = Fixed.fromInt(1234, scale: 3);
+    final t3 = Fixed.fromInt(1234, scale: 3);
 
     expect(t3.toString(), equals('1.234'));
 
@@ -63,7 +63,8 @@ void main() {
 
     expect(t3.format('00,###0', invertSeparator: true), equals('01,2340'));
 
-    var euFormat = Fixed.parse('1.000.000,23', invertSeparator: true, scale: 2);
+    final euFormat =
+        Fixed.parse('1.000.000,23', invertSeparator: true, scale: 2);
     // Format using a locale
     expect(euFormat.formatIntl('en-AUS'), equals('1,000,000.23'));
 
@@ -72,12 +73,12 @@ void main() {
   });
 
   test('example 5', () {
-    Fixed.copyWith(Fixed.fromInt(5, scale: 2), scale: 10);
+    Fixed.copyWith(Fixed.fromInt(5), scale: 10);
   });
 
   test('example 6', () {
     final t1 = Fixed.parse('1.23'); // = 1.23
-    final t2 = Fixed.fromInt(100, scale: 2); // = 1.00
+    final t2 = Fixed.fromInt(100); // = 1.00
 
     expect((t1 + t2).toString(), equals('2.23'));
     expect((t2 - t1).toString(), equals('-0.23'));
@@ -88,7 +89,7 @@ void main() {
 
   test('example 7', () {
     final t1 = Fixed.fromNum(1.23, scale: 2);
-    final t2 = Fixed.fromInt(123, scale: 2);
+    final t2 = Fixed.fromInt(123);
     final t3 = Fixed.fromBigInt(BigInt.from(1234), scale: 3);
 
     expect(t1 == t2, isTrue);
@@ -97,7 +98,7 @@ void main() {
     expect(t1 > t3, isFalse);
     expect(t1 >= t3, isFalse);
     expect(t1 != t3, isTrue);
-    expect(-t1, equals(Fixed.fromInt(-123, scale: 2)));
+    expect(-t1, equals(Fixed.fromInt(-123)));
 
     expect(t1.isPositive, isTrue);
     expect(t1.isNegative, isFalse);

@@ -8,12 +8,6 @@ import 'dart:math';
 
 /// Decodes a monetary amount based on a pattern.
 class FixedDecoder {
-  /// the pattern used to decode the amount.
-  final String pattern;
-
-  final String decimalSeparator;
-  final String groupSeparator;
-
   /// ctor
   FixedDecoder({
     required this.pattern,
@@ -23,9 +17,15 @@ class FixedDecoder {
     ArgumentError.checkNotNull(pattern, 'pattern');
   }
 
+  /// the pattern used to decode the amount.
+  final String pattern;
+
+  final String decimalSeparator;
+  final String groupSeparator;
+
   /// Parses [monetaryValue] and returns
   /// the value as a BigInt holding the minorUnits
-  MinorUnitsAndScale decode(final String monetaryValue, int? scale) {
+  MinorUnitsAndScale decode(String monetaryValue, int? scale) {
     var majorUnits = BigInt.zero;
     var minorUnits = BigInt.zero;
 
@@ -50,7 +50,7 @@ class FixedDecoder {
           }
           if (seenMajor) {
             if (valueQueue.isNotEmpty) {
-              var minorDigits = valueQueue._takeMinorDigits(scale);
+              final minorDigits = valueQueue._takeMinorDigits(scale);
               scale = minorDigits.scale;
               minorUnits = minorDigits.value;
             }
@@ -135,6 +135,9 @@ class FixedDecoder {
 /// Takes a monetary value and turns it into a queue
 /// of digits which can be taken one at a time.
 class ValueQueue {
+  ///
+  ValueQueue(this.monetaryValue, this.groupSeparator);
+
   /// the amount we are queuing the digits of.
   String monetaryValue;
 
@@ -147,12 +150,7 @@ class ValueQueue {
   /// The last character we took from the queue.
   String? lastTake;
 
-  ///
-  ValueQueue(this.monetaryValue, this.groupSeparator);
-
-  String peek() {
-    return monetaryValue[index];
-  }
+  String peek() => monetaryValue[index];
 
   /// takes the next character from the value.
   String takeOne() => lastTake = monetaryValue[index++];
@@ -175,17 +173,13 @@ class ValueQueue {
 
   /// return all of the digits from the current position
   /// until we find a non-digit.
-  BigInt takeMajorDigits() {
-    return BigInt.parse(takeDigits());
-  }
+  BigInt takeMajorDigits() => BigInt.parse(takeDigits());
 
   /// true if the passed character is a digit.
-  bool isDigit(String char) {
-    return RegExp('[0123456789]').hasMatch(char);
-  }
+  bool isDigit(String char) => RegExp('[0123456789]').hasMatch(char);
 
   /// Takes any remaining digits as minor digits.
-  /// If there are less digits than [Currency.scale]
+  /// If there are less digits than [scale]
   /// then we pad the number with zeros before we convert it to an it.
   /// If scale is null then we use the no. of digits to
   /// set the scale.
@@ -244,10 +238,7 @@ class MinorUnitsAndScale {
 
 /// Exception thrown when a parse fails.
 class FixedParseException implements Exception {
-  /// The error message
-  String message;
-
-  ///
+  /// Exception thrown when a parse fails.
   FixedParseException(this.message);
 
   ///
@@ -262,6 +253,9 @@ $monetaryValue contained an unexpected character '${compressedValue[monetaryInde
         when a match for pattern character ${compressedPattern[patternIndex]} at pos $patternIndex was expected.''';
     return FixedParseException(message);
   }
+
+  /// The error message
+  String message;
 
   @override
   String toString() => message;

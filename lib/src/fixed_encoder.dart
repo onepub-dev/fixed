@@ -8,16 +8,16 @@ import 'fixed.dart';
 
 /// Encodes a fixed value based on a pattern.
 class FixedEncoder {
+  ///
+  FixedEncoder(this.pattern,
+      {this.decimalSeparator = '.', this.groupSeparator = ','});
+
   /// the pattern to encode to.
   String pattern;
 
   String decimalSeparator;
 
   String groupSeparator;
-
-  ///
-  FixedEncoder(this.pattern,
-      {this.decimalSeparator = '.', this.groupSeparator = ','});
 
   String encode(Fixed amount) {
     // String formatted;
@@ -45,7 +45,8 @@ class FixedEncoder {
     //   final minorPattern = pattern.substring(decimalSeparatorIndex + 1);
     //   final minorPart = formatMinorPart(amount, minorPattern);
     //   if (minorPart.isNotEmpty) {
-    //     formatted += decimalSeparator + formatMinorPart(amount, minorPattern);
+    //     formatted += decimalSeparator
+    //      + formatMinorPart(amount, minorPattern);
     //   }
     // }
 
@@ -53,7 +54,7 @@ class FixedEncoder {
     return format2(amount, pattern);
   }
 
-  String format2(Fixed amount, final String pattern) {
+  String format2(Fixed amount, String pattern) {
     var whole = amount.minorUnits.toString();
 
     /// we will add the -ve when we know where it is to be placed.
@@ -65,31 +66,31 @@ class FixedEncoder {
       whole = whole.padLeft(amount.scale, '0');
     }
 
-    var decimalStart = whole.length - amount.scale;
-    var integerPart = whole.substring(0, decimalStart);
-    var decimalPart = whole.substring(decimalStart);
+    final decimalStart = whole.length - amount.scale;
+    final integerPart = whole.substring(0, decimalStart);
+    final decimalPart = whole.substring(decimalStart);
 
-    var decimalSeparatorIndex = pattern.indexOf(decimalSeparator);
+    final decimalSeparatorIndex = pattern.indexOf(decimalSeparator);
 
-    var hasDecimalPart = decimalSeparatorIndex != -1;
+    final hasDecimalPart = decimalSeparatorIndex != -1;
 
-    var integerPatternPart =
+    final integerPatternPart =
         hasDecimalPart ? pattern.substring(0, decimalSeparatorIndex) : pattern;
 
     // format integer. We build the no. in from right to left
-    String integerAmount = '';
+    var integerAmount = '';
     if (integerPatternPart.isNotEmpty) {
       integerAmount =
           _formatIntegerPart(integerPatternPart, integerPart, integerAmount);
     }
 
-    String decimalAmount = '';
+    var decimalAmount = '';
     if (hasDecimalPart) {
       decimalAmount = _formatDecimalPart(
           pattern, decimalSeparatorIndex, decimalPart, decimalAmount);
     }
 
-    String result = '';
+    var result = '';
     if (integerAmount.isNotEmpty) {
       result = integerAmount;
     }
@@ -113,7 +114,7 @@ class FixedEncoder {
   String _formatIntegerPart(
       String integerPatternPart, String integerPart, String integerAmount) {
     var patternIndex = integerPatternPart.length - 1;
-    String lastIntegerPattern = '#';
+    var lastIntegerPattern = '#';
     for (var integerIndex = integerPart.length - 1;
         integerIndex >= 0;
         integerIndex--) {
@@ -144,7 +145,7 @@ class FixedEncoder {
       // has leading '0' which must always be output.
       var exitLoop = false;
       for (; patternIndex >= 0 && exitLoop == false; patternIndex--) {
-        var patternChar = integerPatternPart[patternIndex];
+        final patternChar = integerPatternPart[patternIndex];
         switch (patternChar) {
           case '0':
             integerAmount = patternChar + integerAmount;
@@ -156,7 +157,8 @@ class FixedEncoder {
           /// group separators
           case '.':
           case ',':
-            // We only output group separators if there ares still '0' in the pattern.
+            // We only output group separators if there ares still '0'
+            // in the pattern.
             if (patternIndex > 1 && integerPatternPart[patternIndex] == '0') {
               integerAmount = patternChar + integerAmount;
             } else {
@@ -171,7 +173,7 @@ class FixedEncoder {
 
   String _formatDecimalPart(String pattern, int decimalSeparatorIndex,
       String decimalPart, String decimalAmount) {
-    var decimalPatternPart = pattern.substring(decimalSeparatorIndex + 1);
+    final decimalPatternPart = pattern.substring(decimalSeparatorIndex + 1);
 
     // format decimal.
     var decimalPatternIndex = 0;
@@ -179,8 +181,10 @@ class FixedEncoder {
         decimalIndex < decimalPart.length;
         decimalIndex++) {
       // when the decimal pattern finishes so do we.
-      if (decimalPatternIndex == decimalPatternPart.length) break;
-      var patternChar = decimalPatternPart[decimalPatternIndex++];
+      if (decimalPatternIndex == decimalPatternPart.length) {
+        break;
+      }
+      final patternChar = decimalPatternPart[decimalPatternIndex++];
 
       switch (patternChar) {
         case '#':
@@ -205,7 +209,7 @@ class FixedEncoder {
       for (;
           decimalPatternIndex < decimalPatternPart.length && exitLoop == false;
           decimalPatternIndex++) {
-        var patternChar = decimalPatternPart[decimalPatternIndex];
+        final patternChar = decimalPatternPart[decimalPatternIndex];
         switch (patternChar) {
           case '0':
             decimalAmount += patternChar;
@@ -217,7 +221,8 @@ class FixedEncoder {
           /// group separators
           case '.':
           case ',':
-            // We only output group separators if there ares still '0' in the pattern.
+            // We only output group separators if there ares still '0'
+            // in the pattern.
             if (decimalPatternIndex < decimalPatternPart.length &&
                 decimalPatternPart[decimalPatternIndex] == '0') {
               decimalAmount += patternChar;
@@ -363,7 +368,8 @@ class FixedEncoder {
   //   // If the no. of decimal digits contained in the minorunits
   //   // then we need to pad the result.
   //   if (formattedMinorUnits.length < moneyPattern.length) {
-  //     formattedMinorUnits.padLeft(moneyPattern.length - formatted.length, '0');
+  //     formattedMinorUnits.padLeft(moneyPattern.length
+  //      - formatted.length, '0');
   //   }
 
   //   // Add trailing zeros if the pattern width requires it
@@ -395,7 +401,8 @@ class FixedEncoder {
   //       case '.':
   //       default:
   //         throw IllegalPatternException(
-  //             "The minor part of the pattern contains an unexpected character: '$char'");
+  //             "The minor part of the pattern contains an unexpected "
+  //              "character: '$char'");
   //     }
   //   }
 
@@ -498,15 +505,17 @@ class FixedEncoder {
   }
 
   ///
-  String compressMoney(String majorPattern) {
-    return majorPattern.replaceAll(RegExp(r'[#|0|,|\.]+'), '#');
-  }
+  String compressMoney(String majorPattern) =>
+      majorPattern.replaceAll(RegExp(r'[#|0|,|\.]+'), '#');
 
-  /// Check that Zeros are only at the end of the pattern unless we have group separators as there
+  /// Check that Zeros are only at the end of the pattern unless
+  /// we have group separators as there
   /// can then be a zero at the end of each segment.
-  void checkZeros(final String moneyPattern, final String groupSeparator,
+  void checkZeros(String moneyPattern, String groupSeparator,
       {required bool minor}) {
-    if (!moneyPattern.contains('0')) return;
+    if (!moneyPattern.contains('0')) {
+      return;
+    }
 
     final illegalPattern = IllegalPatternException(
         '''The '0' pattern characters must only be at the end of the pattern for ${minor ? 'Minor' : 'Major'} Units''');
@@ -530,12 +539,16 @@ class FixedEncoder {
 
       // when looking at the intial zeros a group separator
       // is consider  valid.
-      if (!zerosEnded) isValid &= char == groupSeparator;
+      if (!zerosEnded) {
+        isValid &= char == groupSeparator;
+      }
 
       if (isValid && zerosEnded) {
         throw illegalPattern;
       }
-      if (!isValid) zerosEnded = true;
+      if (!isValid) {
+        zerosEnded = true;
+      }
     }
   }
 
@@ -556,13 +569,13 @@ class FixedEncoder {
   }
 }
 
-/// Thrown when you pass an invalid pattern to [Money.format].
+/// Thrown when you pass an invalid pattern to [Fixed.format].
 class IllegalPatternException implements Exception {
-  /// the error
-  String message;
-
   ///
   IllegalPatternException(this.message);
+
+  /// the error
+  String message;
 
   @override
   String toString() => message;

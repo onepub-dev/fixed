@@ -4,11 +4,10 @@
  * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
  */
 
-
 import 'package:fixed/fixed.dart';
 
 void main() {
-  var fixed = Fixed.fromNum(1, scale: 2); // == 1.00
+  final fixed = Fixed.fromNum(1, scale: 2); // == 1.00
 
   Fixed.parse('1.234', scale: 2); // == 1.23;
 
@@ -28,6 +27,6 @@ void main() {
   print(fixed.format('#.#'));
   print(fixed.format('#.000'));
 
-  var add = fixed + Fixed.fromNum(1);
+  final add = fixed + Fixed.fromNum(1);
   print(add);
 }

@@ -82,17 +82,17 @@ void main() {
     });
 
     test('Fixed.fromMinorUnits', () {
-      final t1 = Fixed.fromInt(1, scale: 2);
+      final t1 = Fixed.fromInt(1);
       expect(t1.minorUnits.toInt(), equals(1));
       expect(t1.integerPart.toInt(), equals(0));
       expect(t1.scale, equals(2));
 
-      final t7 = Fixed.fromInt(10, scale: 2);
+      final t7 = Fixed.fromInt(10);
       expect(t7.minorUnits.toInt(), equals(10));
       expect(t7.integerPart.toInt(), equals(0));
       expect(t7.scale, equals(2));
 
-      final t2 = Fixed.fromInt(100, scale: 2);
+      final t2 = Fixed.fromInt(100);
       expect(t2.minorUnits.toInt(), equals(100));
       expect(t2.integerPart.toInt(), equals(1));
       expect(t2.scale, equals(2));
@@ -131,20 +131,18 @@ void main() {
     final rate = Fixed.fromInt(7548, scale: 5); // == 0.07548
     expect(rate.minorUnits.toInt(), equals(7548));
 
-    final auDollars = Fixed.fromInt(100, scale: 2); // == 1.00
+    final auDollars = Fixed.fromInt(100); // == 1.00
     final usDollarsHighScale = auDollars * rate; // == 0.07548000, scale = 7
 
     expect(usDollarsHighScale.minorUnits.toInt(), equals(754800));
     expect(usDollarsHighScale.scale, equals(7));
 
-    expect(Fixed.fromInt(-200, scale: 2) * Fixed.fromInt(100, scale: 2),
-        equals(Fixed.fromInt(-200, scale: 2)));
+    expect(
+        Fixed.fromInt(-200) * Fixed.fromInt(100), equals(Fixed.fromInt(-200)));
 
-    expect(Fixed.fromInt(-2, scale: 2) * Fixed.fromInt(100, scale: 2),
-        equals(Fixed.fromInt(-2, scale: 2)));
+    expect(Fixed.fromInt(-2) * Fixed.fromInt(100), equals(Fixed.fromInt(-2)));
 
-    expect(Fixed.fromInt(-2, scale: 2) * Fixed.fromInt(-100, scale: 2),
-        equals(Fixed.fromInt(2, scale: 2)));
+    expect(Fixed.fromInt(-2) * Fixed.fromInt(-100), equals(Fixed.fromInt(2)));
   });
 
   test('division', () {
@@ -354,23 +352,18 @@ void main() {
   });
 
   test('issue #63 from Money2', () {
-    var amount = Fixed.fromNum(121);
-    var percent = Fixed.fromNum(1.21);
-    var result = Fixed.copyWith(amount / percent, scale: 0);
-    result.toString();
+    final amount = Fixed.fromNum(121);
+    final percent = Fixed.fromNum(1.21);
+    final result = Fixed.copyWith(amount / percent, scale: 0)..toString();
     expect(result, equals(Fixed.fromNum(100, scale: 0)));
   });
 
   test('allocate', () {
-    var t1 = Fixed.parse('23.84');
-    List<Fixed> spread = t1.allocationAccordingTo([
+    final t1 = Fixed.parse('23.84');
+    t1.allocationAccordingTo([
       1,
       4,
       2,
-    ]);
-
-    for (var v in spread) {
-      print(v);
-    }
+    ]).forEach(print);
   });
 }
