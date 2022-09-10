@@ -61,6 +61,7 @@ class Fixed implements Comparable<Fixed> {
     final decimalSeparator = invertSeparator ? ',' : '.';
 
     final decoder = FixedDecoder(
+      // ignore: flutter_style_todos
       /// TODO: remove the pattern from the decoder
       /// as I don't think we actually need one.
       /// We just need to know what char is the decimal place.
