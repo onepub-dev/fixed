@@ -1,3 +1,9 @@
+# 2.3.0
+- updated min sdk to 2.14 as latest version of decimal requires 2.14.
+- Applied lint_hard rules.
+- upgrade to decimal-2.3.0 to resolve breaking change between decimal 2.2 and 2.3
+  Thanks to Alexandre Ardhuin @a14n for the patch.
+
 # 2.2.1
 - Fixed rouding problem when multiplying -ve numbers.
 
