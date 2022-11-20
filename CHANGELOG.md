@@ -1,3 +1,6 @@
+# 2.3.2
+- Fixed for #10 as reported b7 @oakstair. Trunction of decimals rather than the required rounding when the calling tryParse with a string with scale larger than the passed scale.
+
 # 2.3.0
 - updated min sdk to 2.14 as latest version of decimal requires 2.14.
 - Applied lint_hard rules.
