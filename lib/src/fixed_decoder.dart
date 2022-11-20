@@ -28,6 +28,8 @@ class FixedDecoder {
   MinorUnitsAndScale decode(String monetaryValue, int? scale) {
     var majorUnits = BigInt.zero;
     var minorUnits = BigInt.zero;
+    // the no. of decimals actually found in the minor units
+    var actualScale = 0;
 
     var compressedPattern = compressDigits(pattern);
     compressedPattern = compressWhitespace(compressedPattern);
@@ -50,8 +52,8 @@ class FixedDecoder {
           }
           if (seenMajor) {
             if (valueQueue.isNotEmpty) {
-              final minorDigits = valueQueue._takeMinorDigits(scale);
-              scale = minorDigits.scale;
+              final minorDigits = valueQueue._takeMinorDigits();
+              actualScale = minorDigits.scale;
               minorUnits = minorDigits.value;
             }
           } else {
@@ -81,8 +83,8 @@ class FixedDecoder {
       }
     }
 
-    final value = majorUnits * BigInt.from(10).pow(scale ?? 0) + minorUnits;
-    return MinorUnitsAndScale(isNegative ? -value : value, scale ?? 0);
+    final value = majorUnits * BigInt.from(10).pow(actualScale) + minorUnits;
+    return MinorUnitsAndScale(isNegative ? -value : value, actualScale);
   }
 
   ///
@@ -179,27 +181,10 @@ class ValueQueue {
   bool isDigit(String char) => RegExp('[0123456789]').hasMatch(char);
 
   /// Takes any remaining digits as minor digits.
-  /// If there are less digits than [scale]
-  /// then we pad the number with zeros before we convert it to an it.
-  /// If scale is null then we use the no. of digits to
-  /// set the scale.
-  _MinorDigits _takeMinorDigits(int? scale) {
-    var digits = takeDigits();
+  _MinorDigits _takeMinorDigits() {
+    final digits = takeDigits();
 
-    if (scale == null) {
-      scale = digits.length;
-    } else {
-      if (digits.length < scale) {
-        digits += '0' * max(0, scale - digits.length);
-      }
-
-      // we have no way of storing less than a minorDigit is this a problem?
-      if (digits.length > scale) {
-        digits = digits.substring(0, scale);
-      }
-    }
-
-    return _MinorDigits(BigInt.parse(digits), scale);
+    return _MinorDigits(BigInt.parse(digits), digits.length);
   }
 
   String takeDigits() {

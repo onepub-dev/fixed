@@ -332,6 +332,12 @@ void main() {
     expect(t4.scale, equals(7));
   });
 
+
+  test('rounding', () {
+
+  expect(Fixed.tryParse('3.1415926535897932', scale: 4).toString(), '3.1416');
+
+  });
   test('rescale - rounding', () {
     final t1 = Fixed.parse('1.2345678', scale: 7);
     final t2 = Fixed.copyWith(t1, scale: 3);

@@ -70,8 +70,11 @@ class Fixed implements Comparable<Fixed> {
       decimalSeparator: invertSeparator ? ',' : '.',
     );
     final minorUnitsAndScale = decoder.decode(amount, scale);
-    return Fixed.fromBigInt(minorUnitsAndScale.value,
-        scale: minorUnitsAndScale.scale);
+    final targetScale = scale ?? minorUnitsAndScale.scale;
+    return Fixed.fromBigInt(
+        _rescale(minorUnitsAndScale.value,
+            existingScale: minorUnitsAndScale.scale, targetScale: targetScale),
+        scale: targetScale);
   }
 
   /// Creates a Fixed scale value from a double
