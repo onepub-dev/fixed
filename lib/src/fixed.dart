@@ -471,7 +471,9 @@ class Fixed implements Comparable<Fixed> {
   Decimal toDecimal() => Decimal.parse(toString());
 
   /// Truncates this and returns the integer part.
-  int toInt() => (minorUnits ~/ minorUnits.pow(scale)).toInt();
+  int toInt() => minorUnits == BigInt.zero
+      ? 0
+      : (minorUnits ~/ minorUnits.pow(scale)).toInt();
 
   /// Returns the [Fixed] value using [scale] to control the
   /// displayed number of decimal places.
