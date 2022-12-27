@@ -1,3 +1,7 @@
+# 2.3.3
+- Fixed: #11 - zero divide when calling Fixed.toInt when Fixed is zero. Thanks to dmitry-kotorov for reporting this bug. Z
+- Removed the 'Unauthorized copying of this file' notice that had incorrectly been applied to some files. The code is fully MIT.
+
 # 2.3.2
 - Fixed for #10 as reported b7 @oakstair. Trunction of decimals rather than the required rounding when the calling tryParse with a string with scale larger than the passed scale.
 
