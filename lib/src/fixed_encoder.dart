@@ -174,7 +174,6 @@ class FixedEncoder {
 
   String _formatDecimalPart(String pattern, int decimalSeparatorIndex,
       String decimalPart, String decimalAmount) {
-    
     var lDecimalAmount = decimalAmount;
     final decimalPatternPart = pattern.substring(decimalSeparatorIndex + 1);
 
