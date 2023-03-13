@@ -114,6 +114,8 @@ class FixedEncoder {
       String integerPatternPart, String integerPart, String integerAmount) {
     var patternIndex = integerPatternPart.length - 1;
     var lastIntegerPattern = '#';
+
+    var lIntegerAmount = integerAmount;
     for (var integerIndex = integerPart.length - 1;
         integerIndex >= 0;
         integerIndex--) {
@@ -125,16 +127,16 @@ class FixedEncoder {
 
       switch (patternChar) {
         case '#':
-          integerAmount = integerPart[integerIndex] + integerAmount;
+          lIntegerAmount = integerPart[integerIndex] + lIntegerAmount;
           break;
         case '0':
-          integerAmount = integerPart[integerIndex] + integerAmount;
+          lIntegerAmount = integerPart[integerIndex] + lIntegerAmount;
           break;
 
         // just echo group separators into the stream.
         case ',':
         case '.':
-          integerAmount = patternChar + integerAmount;
+          lIntegerAmount = patternChar + lIntegerAmount;
           break;
       }
     }
@@ -147,7 +149,7 @@ class FixedEncoder {
         final patternChar = integerPatternPart[patternIndex];
         switch (patternChar) {
           case '0':
-            integerAmount = patternChar + integerAmount;
+            lIntegerAmount = patternChar + lIntegerAmount;
             break;
           case '#':
             exitLoop = true;
@@ -159,7 +161,7 @@ class FixedEncoder {
             // We only output group separators if there ares still '0'
             // in the pattern.
             if (patternIndex > 1 && integerPatternPart[patternIndex] == '0') {
-              integerAmount = patternChar + integerAmount;
+              lIntegerAmount = patternChar + lIntegerAmount;
             } else {
               exitLoop = true;
             }
@@ -167,11 +169,13 @@ class FixedEncoder {
         }
       }
     }
-    return integerAmount;
+    return lIntegerAmount;
   }
 
   String _formatDecimalPart(String pattern, int decimalSeparatorIndex,
       String decimalPart, String decimalAmount) {
+    
+    var lDecimalAmount = decimalAmount;
     final decimalPatternPart = pattern.substring(decimalSeparatorIndex + 1);
 
     // format decimal.
@@ -187,16 +191,16 @@ class FixedEncoder {
 
       switch (patternChar) {
         case '#':
-          decimalAmount += decimalPart[decimalIndex];
+          lDecimalAmount += decimalPart[decimalIndex];
           break;
         case '0':
-          decimalAmount += decimalPart[decimalIndex];
+          lDecimalAmount += decimalPart[decimalIndex];
           break;
 
         // just echo group separators into the stream.
         case ',':
         case '.':
-          decimalAmount += patternChar;
+          lDecimalAmount += patternChar;
           break;
       }
     }
@@ -211,7 +215,7 @@ class FixedEncoder {
         final patternChar = decimalPatternPart[decimalPatternIndex];
         switch (patternChar) {
           case '0':
-            decimalAmount += patternChar;
+            lDecimalAmount += patternChar;
             break;
           case '#':
             exitLoop = true;
@@ -224,7 +228,7 @@ class FixedEncoder {
             // in the pattern.
             if (decimalPatternIndex < decimalPatternPart.length &&
                 decimalPatternPart[decimalPatternIndex] == '0') {
-              decimalAmount += patternChar;
+              lDecimalAmount += patternChar;
             } else {
               exitLoop = true;
             }
@@ -232,7 +236,7 @@ class FixedEncoder {
         }
       }
     }
-    return decimalAmount;
+    return lDecimalAmount;
   }
 
   // /// Formats the major part of the [amount].
