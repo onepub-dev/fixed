@@ -1,3 +1,6 @@
+# 2.4.0
+- Updated version of intl and meta to latest. Updated lint_hard to 2.0. Fixed resulting lints.
+
 # 2.3.2
 - Fixed for #10 as reported b7 @oakstair. Trunction of decimals rather than the required rounding when the calling tryParse with a string with scale larger than the passed scale.
 
