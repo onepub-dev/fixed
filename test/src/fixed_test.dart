@@ -368,4 +368,8 @@ void main() {
       2,
     ]).forEach(print);
   });
+
+  test('zero', () {
+    Fixed.fromInt(0).toInt();
+  });
 }
