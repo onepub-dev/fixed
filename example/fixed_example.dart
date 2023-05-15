@@ -20,7 +20,7 @@ void main() {
   Fixed.fromInt(1234, scale: 3); // == 1.234
 
   /// use default formatting
-  print(fixed.toString());
+  print(fixed);
 
   /// control the formatted output
   print(fixed.format('#.#'));

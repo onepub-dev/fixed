@@ -21,7 +21,7 @@ import 'fixed_encoder.dart';
 /// If you need larger numbers then use one of the alternate
 /// constructors.
 class AmountTooLargeException extends FixedException {
-  AmountTooLargeException(String message) : super(message);
+  AmountTooLargeException(super.message);
 }
 
 /// Represents a fixed scale decimal no.
