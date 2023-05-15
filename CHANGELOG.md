@@ -1,3 +1,6 @@
+# 3.0.0
+- updated to dart 3.x
+
 # 2.4.0
 - Updated version of intl and meta to latest. 
 # 2.3.3
