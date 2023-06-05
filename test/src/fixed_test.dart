@@ -370,6 +370,14 @@ void main() {
   });
 
   test('zero', () {
-    Fixed.fromInt(0).toInt();
+    expect(Fixed.fromInt(0).toInt(), 0);
+  });
+
+  test('toInt', () {
+    expect(Fixed.parse('0').toInt(), 0);
+    expect(Fixed.parse('1').toInt(), 1);
+    expect(Fixed.parse('2.33').toInt(), 2);
+    expect(Fixed.parse('2.99999').toInt(), 2);
+    expect(Fixed.parse('0.99999').toInt(), 0);
   });
 }

@@ -473,7 +473,7 @@ class Fixed implements Comparable<Fixed> {
   /// Truncates this and returns the integer part.
   int toInt() => minorUnits == BigInt.zero
       ? 0
-      : (minorUnits ~/ minorUnits.pow(scale)).toInt();
+      : (minorUnits ~/ BigInt.from(10).pow(scale)).toInt();
 
   /// Returns the [Fixed] value using [scale] to control the
   /// displayed number of decimal places.
