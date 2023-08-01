@@ -1,11 +1,11 @@
 name: fixed
-version: 3.0.1
+version: 4.0.0
 homepage: https://github.com/onepub-dev/fixed
 documentation: https://fixed.onepub.dev
 description: Fixed scale decimal numbers with mathematical operations, formatting and parsing.
 repository: https://github.com/onepub-dev/fixed
 environment: 
-  sdk: '>=2.19.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 dependencies: 
   decimal: ^2.3.0
   intl: ^0.18.0

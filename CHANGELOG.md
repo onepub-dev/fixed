@@ -1,3 +1,6 @@
+# 4.0.0
+- moved the min sdk version to dart 3.x
+
 # 3.0.1
 - fixes #13 toInt was not returning the expected value.
 - thanks to flodiebold for raising the issue and providing the solution.

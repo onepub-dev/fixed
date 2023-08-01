@@ -9,6 +9,13 @@ The features of Fixed are:
 * Fixed includes a convenience method Fixed.formatIntl(locale) which formats the number with the provided locale or the default locale if not provided.
 
 
+# Sponsors
+
+Fixed is sponsored by OnePub, the Dart private package repository.
+
+<a href="https://onepub.dev">![OnePub](https://github.com/onepub-dev/fixed/blob/master/images/LogoAndByLine.png?raw=true)</a>
+
+
 You can create a Fixed instance from a number sources
 ```dart
 var t1 = Fixed.fromNum(1); /// == 1.00
@@ -22,6 +29,7 @@ var t3 = Fixed.parse("1.23356"); // == 1.23356, scale: 5
 if (t1 == t2) // true
 {
     print(t1.format('0.##')); // '1.00'
+    print(t3.format('0.###')); // '1.123'
 }
 ```
 
