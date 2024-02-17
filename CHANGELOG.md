@@ -1,3 +1,6 @@
+# 4.1.1
+- updated the doco for fixed constancts (one, zero, two, ten) to reflect that they actually have a scale of 16 not 2.
+
 # 4.1.0
 - upgraded to intl 0.19
 
