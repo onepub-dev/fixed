@@ -178,16 +178,16 @@ class Fixed implements Comparable<Fixed> {
   static const int minInt = platform_consts.minInt;
   static const int _maxScale = 20;
 
-  // The value
+  // The value zero with [scale] = 16
   static final Fixed zero = Fixed.fromNum(0);
 
-  /// The value 1 with [scale] = 2
+  /// The value 1 with [scale] =16
   static final Fixed one = Fixed.fromNum(1);
 
-  /// The value 2 with [scale] = 2
+  /// The value 2 with [scale] = 16
   static final Fixed two = Fixed.fromNum(2);
 
-  /// The value 10 with [scale] = 2
+  /// The value 10 with [scale] = 16
   static final Fixed ten = Fixed.fromNum(10);
 
   /// The value of this [Fixed] instance stored as minorUnits in a [BigInt].
