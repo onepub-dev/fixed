@@ -1,3 +1,6 @@
+# 4.1.0
+- upgraded to intl 0.19
+
 # 4.0.1
 - fixed link to onepub image.
 
