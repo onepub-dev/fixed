@@ -3,6 +3,7 @@
 * Written by Brett Sutton <bsutton@onepub.dev>, Jan 2022
 */
 
+import 'exceptions.dart';
 import 'fixed.dart';
 
 /// Encodes a fixed value based on a pattern.
@@ -569,16 +570,4 @@ class FixedEncoder {
     }
     return result + trailingZeros;
   }
-}
-
-/// Thrown when you pass an invalid pattern to [Fixed.format].
-class IllegalPatternException implements Exception {
-  ///
-  IllegalPatternException(this.message);
-
-  /// the error
-  String message;
-
-  @override
-  String toString() => message;
 }

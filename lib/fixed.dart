@@ -17,4 +17,5 @@
 /// A range of mathematical comparision operations are supported.
 library fixed;
 
+export 'src/exceptions.dart';
 export 'src/fixed.dart';

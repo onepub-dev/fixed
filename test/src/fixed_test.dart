@@ -6,6 +6,7 @@
 import 'dart:math';
 
 import 'package:decimal/decimal.dart';
+import 'package:fixed/src/exceptions.dart';
 import 'package:fixed/src/fixed.dart';
 import 'package:test/test.dart';
 

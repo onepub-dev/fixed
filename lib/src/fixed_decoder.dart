@@ -5,6 +5,8 @@
 
 import 'dart:math';
 
+import 'exceptions.dart';
+
 /// Decodes a monetary amount based on a pattern.
 class FixedDecoder {
   /// ctor
@@ -218,29 +220,4 @@ class MinorUnitsAndScale {
   MinorUnitsAndScale(this.value, this.scale);
   BigInt value;
   int scale;
-}
-
-/// Exception thrown when a parse fails.
-class FixedParseException implements Exception {
-  /// Exception thrown when a parse fails.
-  FixedParseException(this.message);
-
-  ///
-  factory FixedParseException.fromValue(
-      {required String compressedPattern,
-      required int patternIndex,
-      required String compressedValue,
-      required int monetaryIndex,
-      required String monetaryValue}) {
-    final message = '''
-$monetaryValue contained an unexpected character '${compressedValue[monetaryIndex]}' at pos $monetaryIndex
-        when a match for pattern character ${compressedPattern[patternIndex]} at pos $patternIndex was expected.''';
-    return FixedParseException(message);
-  }
-
-  /// The error message
-  String message;
-
-  @override
-  String toString() => message;
 }

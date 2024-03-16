@@ -11,18 +11,9 @@ import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
 import 'consts.dart' as platform_consts;
+import 'exceptions.dart';
 import 'fixed_decoder.dart';
 import 'fixed_encoder.dart';
-
-/// Thrown if a number larger than the supported ranges is
-/// passed in.
-/// This will only occur if you call [Fixed.fromNum] with
-/// scale > 20 or a absolute value of > 10^21
-/// If you need larger numbers then use one of the alternate
-/// constructors.
-class AmountTooLargeException extends FixedException {
-  AmountTooLargeException(super.message);
-}
 
 /// Represents a fixed scale decimal no.
 ///
@@ -604,14 +595,4 @@ class _Scaled2 {
   _Scaled2(this.one, this.two);
   Fixed one;
   Fixed two;
-}
-
-/// Base exception of all exceptions
-/// thrown from the Fixed package.
-class FixedException implements Exception {
-  FixedException(this.message);
-  String message;
-
-  @override
-  String toString() => message;
 }
