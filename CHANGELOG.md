@@ -1,3 +1,6 @@
+# 4.2.0
+- moved all exceptions into exceptions.dart. Exported exceptions.dart so users can explicitly catch each of these exceptions. Change the exception hierarcy so all exceptions derive from FixedException which was the documented  and inteneded heirarchy.
+
 # 4.1.1
 - updated the doco for fixed constancts (one, zero, two, ten) to reflect that they actually have a scale of 16 not 2.
 
