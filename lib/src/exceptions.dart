@@ -33,9 +33,9 @@ $monetaryValue contained an unexpected character '${compressedValue[monetaryInde
 }
 
 /// Thrown when you pass an invalid pattern to [Fixed.format].
-class IllegalPatternException extends FixedException {
+class IllegalFixedPatternException extends FixedException {
   ///
-  IllegalPatternException(super.message);
+  IllegalFixedPatternException(super.message);
 }
 
 /// Thrown if a number larger than the supported ranges is

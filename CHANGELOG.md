@@ -1,3 +1,9 @@
+# 4.3.0
+- renamed IllegalPatternException to IllegalFixedPatternException as the original name was colliding
+with an exception on Money2 with the same name. Used a minor version so that users would automatically get
+this fix. 4.2 probably should have been a major version no.
+
+
 # 4.2.0
 - moved all exceptions into exceptions.dart. Exported exceptions.dart so users can explicitly catch each of these exceptions. Change the exception hierarcy so all exceptions derive from FixedException which was the documented  and inteneded heirarchy.
 

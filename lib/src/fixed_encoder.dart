@@ -25,7 +25,7 @@ class FixedEncoder {
     final decimalSeperatorCount = decimalSeparator.allMatches(pattern).length;
 
     if (decimalSeperatorCount > 1) {
-      throw IllegalPatternException(
+      throw IllegalFixedPatternException(
           'A format Pattern may contain, at most, a single decimal '
           "separator '$decimalSeparator'");
     }
@@ -453,7 +453,7 @@ class FixedEncoder {
           inMoney = false;
           break;
         default:
-          throw IllegalPatternException(
+          throw IllegalFixedPatternException(
               "The pattern contains an unknown character: '$char'");
       }
     }
@@ -502,7 +502,7 @@ class FixedEncoder {
   void isMoneyAllowed(
       {required bool inMoney, required bool foundMoney, required int pos}) {
     if (!inMoney && foundMoney) {
-      throw IllegalPatternException('Found a 0 at location $pos. '
+      throw IllegalFixedPatternException('Found a 0 at location $pos. '
           'All money characters (0#,.)must be contiguous');
     }
   }
@@ -520,7 +520,7 @@ class FixedEncoder {
       return;
     }
 
-    final illegalPattern = IllegalPatternException(
+    final illegalPattern = IllegalFixedPatternException(
         '''The '0' pattern characters must only be at the end of the pattern for ${minor ? 'Minor' : 'Major'} Units''');
 
     // compress zeros so we have only one which should be at the end,
