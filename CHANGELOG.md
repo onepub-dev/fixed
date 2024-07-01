@@ -1,5 +1,10 @@
+# 5.0.0
+- BREAKING: Changed Fixed.one, Fixed.zero, Fixed.two and Fixed.ten to be 'scale:0' when previously there were scale 16.  This means the display as an integer value (more in line with what is expected) and when combined with other values that have a larger scale then the other value will dictate the scale rather then forcing scale 16 on the results.
+
+- Fixed a bug in tryParse where it would throw rather than returning null on some input (such as an empty string).
+
 # 4.3.0
-- renamed IllegalPatternException to IllegalFixedPatternException as the original name was colliding
+- renamed IllegalPatternException to IllegalFitxedPatternException as the original name was colliding
 with an exception on Money2 with the same name. Used a minor version so that users would automatically get
 this fix. 4.2 probably should have been a major version no.
 
