@@ -381,4 +381,11 @@ void main() {
     expect(Fixed.parse('2.99999').toInt(), 2);
     expect(Fixed.parse('0.99999').toInt(), 0);
   });
+
+  test('invalid', () {
+     expect(Fixed.tryParse(''), null);
+     expect(Fixed.tryParse('a'), null);
+     expect(Fixed.tryParse('1ea'), null);
+     expect(Fixed.tryParse('131.A'), null);
+  });
 }

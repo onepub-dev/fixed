@@ -169,17 +169,17 @@ class Fixed implements Comparable<Fixed> {
   static const int minInt = platform_consts.minInt;
   static const int _maxScale = 20;
 
-  // The value zero with [scale] = 16
-  static final Fixed zero = Fixed.fromNum(0);
+  // The value zero with [scale] = 0
+  static final Fixed zero = Fixed.fromNum(0, scale: 0);
 
-  /// The value 1 with [scale] =16
-  static final Fixed one = Fixed.fromNum(1);
+  /// The value 1 with [scale] =0
+  static final Fixed one = Fixed.fromNum(1, scale: 0);
 
-  /// The value 2 with [scale] = 16
-  static final Fixed two = Fixed.fromNum(2);
+  /// The value 2 with [scale] = 0
+  static final Fixed two = Fixed.fromNum(2, scale: 0);
 
-  /// The value 10 with [scale] = 16
-  static final Fixed ten = Fixed.fromNum(10);
+  /// The value 10 with [scale] = 0
+  static final Fixed ten = Fixed.fromNum(10, scale: 0);
 
   /// The value of this [Fixed] instance stored as minorUnits in a [BigInt].
   /// If the scale is 2 then 1 is stored as 100
@@ -527,7 +527,6 @@ class Fixed implements Comparable<Fixed> {
   /// [scale] defaults to 2 if not passed.
   static Fixed? tryParse(
     String amount, {
-    //String pattern = '#.#',
     int scale = 2,
     bool invertSeparator = false,
   }) {
@@ -536,7 +535,8 @@ class Fixed implements Comparable<Fixed> {
           //pattern: pattern,
           scale: scale,
           invertSeparator: invertSeparator);
-    } on FixedParseException catch (_) {
+      // ignore: avoid_catches_without_on_clauses
+    } catch (_) {
       return null;
     }
   }
