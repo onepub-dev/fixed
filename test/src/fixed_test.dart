@@ -383,9 +383,23 @@ void main() {
   });
 
   test('invalid', () {
-     expect(Fixed.tryParse(''), null);
-     expect(Fixed.tryParse('a'), null);
-     expect(Fixed.tryParse('1ea'), null);
-     expect(Fixed.tryParse('131.A'), null);
+    expect(Fixed.tryParse(''), null);
+    expect(Fixed.tryParse('a'), null);
+    expect(Fixed.tryParse('1ea'), null);
+    expect(Fixed.tryParse('131.A'), null);
+  });
+
+  test('constants', () {
+    expect(Fixed.zero.integerPart, equals(BigInt.zero));
+    expect(Fixed.zero.decimalPart, equals(BigInt.zero));
+
+    expect(Fixed.one.integerPart, equals(BigInt.one));
+    expect(Fixed.one.decimalPart, equals(BigInt.zero));
+
+    expect(Fixed.two.integerPart, equals(BigInt.two));
+    expect(Fixed.two.decimalPart, equals(BigInt.zero));
+
+    expect(Fixed.ten.integerPart, equals(BigInt.from(10)));
+    expect(Fixed.ten.decimalPart, equals(BigInt.zero));
   });
 }
