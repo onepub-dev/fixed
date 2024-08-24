@@ -402,4 +402,12 @@ void main() {
     expect(Fixed.ten.integerPart, equals(BigInt.from(10)));
     expect(Fixed.ten.decimalPart, equals(BigInt.zero));
   });
+
+  test('less than zero', () {
+    expect(Fixed.tryParse('.1')!.decimalPart, equals(BigInt.from(10)));
+    expect(Fixed.tryParse('0.1')!.decimalPart, equals(BigInt.from(10)));
+
+    expect(Fixed.tryParse('.01')!.decimalPart, equals(BigInt.from(1)));
+    expect(Fixed.tryParse('0.01')!.decimalPart, equals(BigInt.from(1)));
+  });
 }

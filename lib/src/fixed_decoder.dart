@@ -39,7 +39,8 @@ class FixedDecoder {
     var isNegative = false;
     var seenMajor = false;
 
-    final valueQueue = ValueQueue(compressedMonetaryValue, groupSeparator);
+    final valueQueue =
+        ValueQueue(compressedMonetaryValue, groupSeparator, decimalSeparator);
 
     for (var i = 0; i < compressedPattern.length; i++) {
       switch (compressedPattern[i]) {
@@ -139,7 +140,7 @@ class FixedDecoder {
 /// of digits which can be taken one at a time.
 class ValueQueue {
   ///
-  ValueQueue(this.monetaryValue, this.groupSeparator);
+  ValueQueue(this.monetaryValue, this.groupSeparator, this.decimalSeparator);
 
   /// the amount we are queuing the digits of.
   String monetaryValue;
@@ -149,6 +150,9 @@ class ValueQueue {
 
   /// the group seperator used in this [monetaryValue]
   String groupSeparator;
+
+  /// Used to separate major parts from minor parts.
+  String decimalSeparator;
 
   /// The last character we took from the queue.
   String? lastTake;
@@ -201,10 +205,16 @@ class ValueQueue {
     }
 
     if (digits.isEmpty) {
-      throw FixedParseException(
-        'Character "${monetaryValue[index]}" at pos $index'
-        ' is not a digit when a digit was expected',
-      );
+      /// If the numbers starts with the decimal separator e.g. '.9'
+      /// then treated it as if it started with a zero.
+      if (monetaryValue[index] == decimalSeparator) {
+        return '0';
+      } else {
+        throw FixedParseException(
+          'Character "${monetaryValue[index]}" at pos $index'
+          ' is not a digit when a digit was expected',
+        );
+      }
     }
     return digits;
   }
