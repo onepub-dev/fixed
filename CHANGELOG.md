@@ -1,3 +1,7 @@
+# 5.0.1
+- Fixed a bug where we didn't allow a decimal number to start with dot - e.g. 0.1 == .1
+- added unit tests for constant values.
+
 # 5.0.0
 - BREAKING: Changed Fixed.one, Fixed.zero, Fixed.two and Fixed.ten to be 'scale:0' when previously there were scale 16.  This means the display as an integer value (more in line with what is expected) and when combined with other values that have a larger scale then the other value will dictate the scale rather then forcing scale 16 on the results.
 
