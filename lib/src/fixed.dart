@@ -436,7 +436,7 @@ class Fixed implements Comparable<Fixed> {
     locale ??= Intl.defaultLocale;
 
     final formatter = NumberFormat.decimalPattern(locale);
-    return formatter.format(DecimalIntl(toDecimal()));
+    return DecimalFormatter(formatter).format(toDecimal());
   }
 
   /// Returns this * [multiplier]

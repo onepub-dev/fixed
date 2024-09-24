@@ -1,3 +1,6 @@
+# 5.1.0
+- upgraded to decimal 3.x
+
 # 5.0.1
 - Fixed a bug where we didn't allow a decimal number to start with dot - e.g. 0.1 == .1
 - added unit tests for constant values.

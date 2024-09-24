@@ -61,7 +61,6 @@ class FixedDecoder {
           } else {
             majorUnits = valueQueue.takeMajorDigits();
           }
-          break;
         case '.':
           if (valueQueue.isNotEmpty) {
             final char = valueQueue.takeOne();
@@ -75,7 +74,6 @@ class FixedDecoder {
             }
           }
           seenMajor = true;
-          break;
         case ' ':
           break;
         default:

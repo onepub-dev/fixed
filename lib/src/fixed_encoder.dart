@@ -129,16 +129,13 @@ class FixedEncoder {
       switch (patternChar) {
         case '#':
           lIntegerAmount = integerPart[integerIndex] + lIntegerAmount;
-          break;
         case '0':
           lIntegerAmount = integerPart[integerIndex] + lIntegerAmount;
-          break;
 
         // just echo group separators into the stream.
         case ',':
         case '.':
           lIntegerAmount = patternChar + lIntegerAmount;
-          break;
       }
     }
 
@@ -146,15 +143,13 @@ class FixedEncoder {
       // we have to keep process the pattern index incase the user
       // has leading '0' which must always be output.
       var exitLoop = false;
-      for (; patternIndex >= 0 && exitLoop == false; patternIndex--) {
+      for (; patternIndex >= 0 && !exitLoop; patternIndex--) {
         final patternChar = integerPatternPart[patternIndex];
         switch (patternChar) {
           case '0':
             lIntegerAmount = patternChar + lIntegerAmount;
-            break;
           case '#':
             exitLoop = true;
-            break;
 
           /// group separators
           case '.':
@@ -166,7 +161,6 @@ class FixedEncoder {
             } else {
               exitLoop = true;
             }
-            break;
         }
       }
     }
@@ -192,16 +186,13 @@ class FixedEncoder {
       switch (patternChar) {
         case '#':
           lDecimalAmount += decimalPart[decimalIndex];
-          break;
         case '0':
           lDecimalAmount += decimalPart[decimalIndex];
-          break;
 
         // just echo group separators into the stream.
         case ',':
         case '.':
           lDecimalAmount += patternChar;
-          break;
       }
     }
 
@@ -210,16 +201,14 @@ class FixedEncoder {
       // has trailing '0' which must always be output.
       var exitLoop = false;
       for (;
-          decimalPatternIndex < decimalPatternPart.length && exitLoop == false;
+          decimalPatternIndex < decimalPatternPart.length && !exitLoop;
           decimalPatternIndex++) {
         final patternChar = decimalPatternPart[decimalPatternIndex];
         switch (patternChar) {
           case '0':
             lDecimalAmount += patternChar;
-            break;
           case '#':
             exitLoop = true;
-            break;
 
           /// group separators
           case '.':
@@ -232,7 +221,6 @@ class FixedEncoder {
             } else {
               exitLoop = true;
             }
-            break;
         }
       }
     }
@@ -428,30 +416,25 @@ class FixedEncoder {
 
           isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
           moneyPattern += '#';
-          break;
         case '0':
           isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
           moneyPattern += '0';
           inMoney = true;
           foundMoney = true;
-          break;
         case ',':
           isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
           moneyPattern += ',';
           inMoney = true;
           foundMoney = true;
 
-          break;
         case '.':
           isMoneyAllowed(inMoney: inMoney, foundMoney: foundMoney, pos: i);
           moneyPattern += '.';
           inMoney = true;
           foundMoney = true;
 
-          break;
         case ' ':
           inMoney = false;
-          break;
         default:
           throw IllegalFixedPatternException(
               "The pattern contains an unknown character: '$char'");
