@@ -1,3 +1,6 @@
+# 5.2.0
+- changed copyWith from a static to a member method in keeping with dart conventions.
+ deprecated the old static method. Will be removed in 6.0
 # 5.1.0
 - upgraded to decimal 3.x
 
