@@ -157,6 +157,7 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns a new [Fixed] value from an existing one
   /// changing the scale to [scale].
+  @Deprecated('Use the copyWith member method')
   factory Fixed.copyWith(Fixed fixed, {int? scale}) {
     scale ??= fixed.scale;
     _checkScale(scale);
@@ -165,6 +166,17 @@ class Fixed implements Comparable<Fixed> {
             existingScale: fixed.scale, targetScale: scale),
         scale: scale);
   }
+
+  /// Returns a new [Fixed] value from an existing one
+  /// changing the scale to [scale].
+  Fixed copyWith({int? scale}) {
+    scale ??= this.scale;
+    _checkScale(scale);
+    return Fixed.fromBigInt(
+        _rescale(minorUnits, existingScale: this.scale, targetScale: scale),
+        scale: scale);
+  }
+
   static const int maxInt = platform_consts.maxInt;
   static const int minInt = platform_consts.minInt;
   static const int _maxScale = 20;
