@@ -12,7 +12,7 @@ void main() {
     expect(Fixed.fromInt(1234, scale: 3).toString(), equals('1.234')); // == 1.
     final t3 = Fixed.fromBigInt(BigInt.from(1234), scale: 3); // == 1.234
     expect(t3.toString(), equals('1.234'));
-    final t4 = Fixed.copyWith(t3, scale: 2); // == 1.23
+    final t4 = t3.copyWith(scale: 2); // == 1.23
     expect(t4.toString(), equals('1.23'));
     final t5 = Fixed.parse('1.234', scale: 3); // == 1.234
     expect(t5.toString(), equals('1.234'));
@@ -30,11 +30,11 @@ void main() {
     expect(t7.toString(), equals('1.234'));
 
     /// reduce the scale
-    final t8 = Fixed.copyWith(t7, scale: 2); // == 1.23
+    final t8 = t7.copyWith(scale: 2); // == 1.23
     expect(t8.toString(), equals('1.23'));
 
     /// increase the scale
-    final t9 = Fixed.copyWith(t8, scale: 5); // == 1.2300
+    final t9 = t8.copyWith(scale: 5); // == 1.2300
     expect(t9.toString(), equals('1.23000'));
   });
 
@@ -72,7 +72,7 @@ void main() {
   });
 
   test('example 5', () {
-    Fixed.copyWith(Fixed.fromInt(5), scale: 10);
+    Fixed.fromInt(5).copyWith(scale: 10);
   });
 
   test('example 6', () {

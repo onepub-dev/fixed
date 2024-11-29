@@ -205,7 +205,7 @@ void main() {
     expect(highScale.scale, equals(4));
 
     /// reduce the scale to 2 decimal places.
-    final lowScale = Fixed.copyWith(highScale, scale: 2);
+    final lowScale = highScale.copyWith( scale: 2);
     expect(lowScale.minorUnits.toInt(), equals(100));
     expect(lowScale.scale, equals(2));
   });
@@ -281,9 +281,9 @@ void main() {
 
   test('rescale', () {
     final t1 = Fixed.fromInt(1234567, scale: 6);
-    final t2 = Fixed.copyWith(t1, scale: 2);
-    final t3 = Fixed.copyWith(t1, scale: 8);
-    final t4 = Fixed.copyWith(t1, scale: 0);
+    final t2 = t1.copyWith( scale: 2);
+    final t3 = t1.copyWith( scale: 8);
+    final t4 = t1.copyWith( scale: 0);
 
     expect(t2.minorUnits.toInt(), equals(123));
     expect(t3.minorUnits.toInt(), equals(123456700));
@@ -300,7 +300,7 @@ void main() {
     expect(usDollarsHighScale.scale, equals(7));
 
     /// reduce the scale to 2 decimal places.
-    final usDollars = Fixed.copyWith(usDollarsHighScale, scale: 2); // == 1.75
+    final usDollars = usDollarsHighScale.copyWith( scale: 2); // == 1.75
     expect(usDollars.minorUnits.toInt(), equals(75));
     expect(usDollars.scale, equals(2));
 
@@ -316,17 +316,17 @@ void main() {
   test('rescale', () {
     final t1 = Fixed.parse('1.2345678', scale: 7);
 
-    final t2 = Fixed.copyWith(t1, scale: 2);
+    final t2 = t1.copyWith( scale: 2);
     expect(t2.integerPart, equals(BigInt.from(1)));
     expect(t2.decimalPart, equals(BigInt.from(23)));
     expect(t2.scale, equals(2));
 
-    final t3 = Fixed.copyWith(t2, scale: 7);
+    final t3 = t2.copyWith( scale: 7);
     expect(t3.integerPart, equals(BigInt.from(1)));
     expect(t3.decimalPart, equals(BigInt.from(2300000)));
     expect(t3.scale, equals(7));
 
-    final t4 = Fixed.copyWith(t1);
+    final t4 = t1.copyWith();
     expect(t4.integerPart, equals(BigInt.from(1)));
     expect(t4.decimalPart, equals(BigInt.from(2345678)));
     expect(t4.scale, equals(7));
@@ -337,7 +337,7 @@ void main() {
   });
   test('rescale - rounding', () {
     final t1 = Fixed.parse('1.2345678', scale: 7);
-    final t2 = Fixed.copyWith(t1, scale: 3);
+    final t2 = t1.copyWith( scale: 3);
 
     expect(t2.integerPart, equals(BigInt.from(1)));
     expect(t2.decimalPart, equals(BigInt.from(235)));
@@ -357,7 +357,7 @@ void main() {
   test('issue #63 from Money2', () {
     final amount = Fixed.fromNum(121);
     final percent = Fixed.fromNum(1.21);
-    final result = Fixed.copyWith(amount / percent, scale: 0)..toString();
+    final result = (amount / percent).copyWith( scale: 0)..toString();
     expect(result, equals(Fixed.fromNum(100, scale: 0)));
   });
 
