@@ -2,7 +2,6 @@ import 'package:fixed/fixed.dart';
 import 'package:test/test.dart';
 
 void main() {
-
   test('is', () {
     final t1 = Fixed.fromNum(2.01, scale: 2);
     final t2 = Fixed.fromNum(-2.01, scale: 5);
@@ -20,7 +19,7 @@ void main() {
     expect(t4.isZero, isTrue);
   });
 
-    test('compare', () {
+  test('compare', () {
     final t1 = Fixed.fromNum(1.01, scale: 0);
     final t2 = Fixed.fromNum(1.01, scale: 1);
     final t3 = Fixed.fromNum(1.01, scale: 2);
@@ -52,7 +51,6 @@ void main() {
     expect(t4 != t5, isFalse);
   });
 
-
   test('less than zero', () {
     expect(Fixed.tryParse('.1')!.decimalPart, equals(BigInt.from(10)));
     expect(Fixed.tryParse('0.1')!.decimalPart, equals(BigInt.from(10)));
@@ -61,4 +59,12 @@ void main() {
     expect(Fixed.tryParse('0.01')!.decimalPart, equals(BigInt.from(1)));
   });
 
+  test('compare other', () {
+    // This example better demonstrates the issue
+    final list = <Object>[Fixed.fromInt(10), 10, Fixed.fromInt(20)];
+    // This can lead to inconsistent behavior
+    expect(list[0] == 10, equals(false));
+    expect(10 == list[0], equals(false));
+    expect(list[0] == Fixed.fromInt(10), equals(true));
+  });
 }

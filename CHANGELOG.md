@@ -1,6 +1,11 @@
+# 5.3.0
+ - change the Fixed operator == method to be conformant with the dart
+  standard to not throw regardless of the left hand side.
+ Thanks to @yehorh for reporting the issue.
+
 # 5.2.1
 - Fixed issue: #19 which cased by a rounding issue in the rescale logic. Thanks
-  to vi-k for reporting the issue.
+  to @vi-k for reporting the issue.
 - re-orged the unit tests into smaller files.
 
 # 5.2.0

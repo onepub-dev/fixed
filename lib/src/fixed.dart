@@ -368,7 +368,10 @@ class Fixed implements Comparable<Fixed> {
   /// Two Fixed values are considered equal if they have
   /// the same value irrespective of scale.
   @override
-  bool operator ==(covariant Fixed other) {
+  bool operator ==(Object other) {
+    if (other is! Fixed) {
+      return false;
+    }
     final scaled = _scale(this, other);
     return scaled.one.minorUnits == scaled.two.minorUnits;
   }
