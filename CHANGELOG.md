@@ -1,3 +1,8 @@
+# 5.2.1
+- Fixed issue: #19 which cased by a rounding issue in the rescale logic. Thanks
+  to vi-k for reporting the issue.
+- re-orged the unit tests into smaller files.
+
 # 5.2.0
 - changed copyWith from a static to a member method in keeping with dart conventions.
  deprecated the old static method. Will be removed in 6.0
