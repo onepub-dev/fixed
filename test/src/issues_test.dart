@@ -13,4 +13,10 @@ void main() {
     final result = (amount / percent).copyWith(scale: 0)..toString();
     expect(result, equals(Fixed.fromNum(100, scale: 0)));
   });
+
+  test('issue wrong result #19', () {
+    final v1 = Fixed.fromInt(123456789, scale: 1);
+    final v2 = Fixed.fromInt(123456789, scale: 5);
+    expect(v1 * v2, equals(Fixed.parse('15241578750.190521')));
+  });
 }

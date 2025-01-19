@@ -355,13 +355,13 @@ class Fixed implements Comparable<Fixed> {
 
   /// less than operator
   bool operator <(Fixed other) {
-    final scaled = _scale2(this, other);
+    final scaled = _scale(this, other);
     return scaled.one.minorUnits < scaled.two.minorUnits;
   }
 
   /// less than or equal operator
   bool operator <=(Fixed other) {
-    final scaled = _scale2(this, other);
+    final scaled = _scale(this, other);
     return scaled.one.minorUnits <= scaled.two.minorUnits;
   }
 
@@ -369,19 +369,19 @@ class Fixed implements Comparable<Fixed> {
   /// the same value irrespective of scale.
   @override
   bool operator ==(covariant Fixed other) {
-    final scaled = _scale2(this, other);
+    final scaled = _scale(this, other);
     return scaled.one.minorUnits == scaled.two.minorUnits;
   }
 
   /// greater than operator
   bool operator >(Fixed other) {
-    final scaled = _scale2(this, other);
+    final scaled = _scale(this, other);
     return scaled.one.minorUnits > scaled.two.minorUnits;
   }
 
   /// greater than or equal operator
   bool operator >=(Fixed other) {
-    final scaled = _scale2(this, other);
+    final scaled = _scale(this, other);
     return scaled.one.minorUnits >= scaled.two.minorUnits;
   }
 
@@ -566,23 +566,58 @@ class Fixed implements Comparable<Fixed> {
     required int targetScale,
   }) {
     if (existingScale < targetScale) {
-      // increase scale
-      return minorUnits * BigInt.from(10).pow(targetScale - existingScale);
+      // Increase scale: just multiply by 10^(targetScale - existingScale)
+      final diff = targetScale - existingScale;
+      return minorUnits * BigInt.from(10).pow(diff);
+    } else if (existingScale > targetScale) {
+      // Reduce scale with round-half-away-from-zero
+      final diff = existingScale - targetScale;
+      return _roundHalfAwayFromZero(minorUnits, diff);
+    } else {
+      // No change
+      return minorUnits;
     }
-    if (existingScale > targetScale) {
-      final rounding = minorUnits.isNegative ? -0.5 : 0.5;
-      // reduce scale
-      return BigInt.from(
-          (minorUnits / BigInt.from(10).pow(existingScale - targetScale)) +
-              rounding);
-    }
-    // var coef = BigInt.from(10).pow(targetScale);
-    // return (minorUnits * coef).round() / coef;
-    // no adjustment required.
-    return minorUnits;
   }
 
-  _Scaled2 _scale2(Fixed fixed, Fixed other) {
+  /// Divides [value] by 10^[scaleDiff], then rounds half away from zero.
+  /// Example: If [value] = 15241578750190521000000, scaleDiff = 6, we want
+  /// to do integer division plus correct rounding—without floating-point.
+  static BigInt _roundHalfAwayFromZero(BigInt value, int scaleDiff) {
+    final divisor = BigInt.from(10).pow(scaleDiff);
+    if (divisor == BigInt.one) {
+      // Nothing to scale
+      return value;
+    }
+
+    // Determine sign; work with absolute
+    final isNegative = value.isNegative;
+    final absValue = isNegative ? -value : value;
+
+    // Integer division and remainder
+    final absQuotient = absValue ~/ divisor;
+    final absRemainder = absValue % divisor; // remainder in [0 .. divisor-1]
+
+    // Compare remainder to half of divisor
+    // If remainder * 2 == divisor => exactly half => also round up
+    final twiceRemainder = absRemainder << 1; // same as absRemainder * 2
+
+    if (twiceRemainder > divisor) {
+      // remainder > 0.5 => round up
+      return isNegative
+          ? -(absQuotient + BigInt.one)
+          : (absQuotient + BigInt.one);
+    } else if (twiceRemainder < divisor) {
+      // remainder < 0.5 => round down
+      return isNegative ? -absQuotient : absQuotient;
+    } else {
+      // remainder == exactly 0.5 => round half AWAY from zero => also round up
+      return isNegative
+          ? -(absQuotient + BigInt.one)
+          : (absQuotient + BigInt.one);
+    }
+  }
+
+  _Scaled2 _scale(Fixed fixed, Fixed other) {
     if (fixed.scale > other.scale) {
       return _Scaled2(
           fixed,

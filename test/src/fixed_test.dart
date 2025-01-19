@@ -38,9 +38,9 @@ void main() {
     ]).toList();
 
     expect(allocated.length, equals(3));
-    expect(allocated[0], equals(Fixed.fromNum(3.41)));
-    expect(allocated[0], equals(Fixed.fromNum(13.62)));
-    expect(allocated[2], equals(Fixed.fromNum(6.81)));
+    expect(allocated[0], equals(Fixed.fromInt(341)));
+    expect(allocated[1], equals(Fixed.fromInt(1362)));
+    expect(allocated[2], equals(Fixed.fromInt(681)));
   });
 
   test('zero', () {

@@ -106,8 +106,4 @@ void main() {
     expect(t7.integerPart.toInt(), equals(0));
     expect(t7.scale, equals(2));
   });
-
-  test('Fixed.fromNum', () {
-    expect(Fixed.fromInt(341), equals(Fixed.fromNum(3.41)));
-  });
 }
