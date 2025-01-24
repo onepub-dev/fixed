@@ -1,3 +1,6 @@
+# 5.3.1
+- Corrected a mistake in the doco for Fixed.parse. It doesn't default to 2 but the rather the number of decimals present in the passed in string.
+
 # 5.3.0
  - change the Fixed operator == method to be conformant with the dart
   standard to not throw regardless of the left hand side.
