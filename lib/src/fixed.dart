@@ -28,7 +28,8 @@ class Fixed implements Comparable<Fixed> {
   ///
   /// The [scale] controls the number of decimal
   /// places to be retained.
-  /// If [scale] is not passed it defaults to 2.
+  /// If [scale] is not passed then the scale is determined
+  /// by the number of decimal places present in the passed [amount].
   ///
   /// If [scale] < 0 then a FixedException will be thrown.
   /// If the [amount] isn't valid then

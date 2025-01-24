@@ -2,7 +2,7 @@ import 'package:fixed/fixed.dart';
 import 'package:test/test.dart';
 
 void main() {
-    test('multiplication', () {
+  test('multiplication', () {
     final rate = Fixed.fromInt(7548, scale: 5); // == 0.07548
     expect(rate.minorUnits.toInt(), equals(7548));
 
@@ -39,6 +39,8 @@ void main() {
 
     expect(result.minorUnits.toInt(), equals(306171));
     expect(result.scale, equals(5));
+
+    expect(Fixed.one / Fixed.parse('10', scale: 2), equals(Fixed.parse('0.1')));
   });
 
   test('plus', () {
