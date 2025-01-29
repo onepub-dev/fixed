@@ -1,5 +1,5 @@
 name: fixed
-version: 5.3.1
+version: 5.3.2
 homepage: https://github.com/onepub-dev/fixed
 documentation: https://fixed.onepub.dev
 description: Fixed scale decimal numbers with mathematical operations, formatting and parsing.

@@ -1,3 +1,8 @@
+# 5.3.2
+- removed max_scale as I don't think it is actually necessary and it was causing rounding errors when doing large multiplications.  The only place a limit seems to be required is in fromNum. Fixed #21
+- upgraded intl to latest version.
+
+
 # 5.3.1
 - Corrected a mistake in the doco for Fixed.parse. It doesn't default to 2 but the rather the number of decimals present in the passed in string.
 
