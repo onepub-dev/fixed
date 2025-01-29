@@ -77,21 +77,21 @@ class Fixed implements Comparable<Fixed> {
   /// This method will throw [AmountTooLargeException]
   /// if the [scale] is > 20 or the absolute value
   /// is greater than 10^21
-  /// This method will clip the no. of decimal places
-  /// to 20.
-  /// ```dart
-  /// final value = Fixed.fromNum(1.2345, scale: 2);
-  /// print(value) -> 1.23
-  /// ```
   ///
-  /// For a decimal [amount] we throw a [AmountTooLargeException] if an [amount]
-  /// is larger 10^21  is passed in.
-  /// An [AmountTooLargeException] will be thrown if the
-  /// scale > 20.
   /// If you need larger numbers then use one of the alternate
   /// constructors.
   Fixed.fromNum(num amount, {this.scale = 16}) {
+    ///
+    /// ```dart
+    /// final value = Fixed.fromNum(1.2345, scale: 2);
+    /// print(value) -> 1.23
+    /// ```
+    ///
     _checkScale(scale);
+
+    if (scale > 20) {
+      throw AmountTooLargeException('The maximum scale for num is 20.');
+    }
 
     final decoder = FixedDecoder(
       pattern: '#.#',
@@ -180,8 +180,6 @@ class Fixed implements Comparable<Fixed> {
 
   static const int maxInt = platform_consts.maxInt;
   static const int minInt = platform_consts.minInt;
-  static const int _maxScale = 20;
-
   // The value zero with [scale] = 0
   static final Fixed zero = Fixed.fromNum(0, scale: 0);
 
@@ -269,7 +267,8 @@ class Fixed implements Comparable<Fixed> {
   /// The result's [scale] is the sum of the [scale] of the two
   /// operands.
   Fixed operator *(Fixed multiplier) {
-    final targetScale = min(scale + multiplier.scale, _maxScale);
+    // final targetScale = min(scale + multiplier.scale, Scale);
+    final targetScale = scale + multiplier.scale;
 
     final scaledThis =
         _rescale(minorUnits, existingScale: scale, targetScale: targetScale);

@@ -18,6 +18,12 @@ void main() {
     expect(Fixed.fromInt(-2) * Fixed.fromInt(100), equals(Fixed.fromInt(-2)));
 
     expect(Fixed.fromInt(-2) * Fixed.fromInt(-100), equals(Fixed.fromInt(2)));
+
+    expect(
+        Fixed.parse('0.00123456789', scale: 100) *
+            Fixed.parse('0.0000000001', scale: 100),
+        equals(Fixed.parse('0.000000000000123456789', scale: 100)))
+        ;
   });
 
   test('division', () {
