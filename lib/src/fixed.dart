@@ -35,11 +35,8 @@ class Fixed implements Comparable<Fixed> {
   /// If the [amount] isn't valid then
   /// a [FixedParseException] is thrown.
   ///
-  /// If [invertSeparator] = false then we
-  /// assume '.' is the decimal place and ',' is the group separator.
-  ///
-  /// If [invertSeparator] = true then we
-  /// assume ',' is the decimal place and '.' is the group separator.
+  /// [decimalSeparator] and [groupSeparator] are optional and
+  /// default to '.' and ',' respectively.
   factory Fixed.parse(
     String amount, {
     int? scale,
@@ -430,17 +427,11 @@ class Fixed implements Comparable<Fixed> {
   /// Formats a [Fixed] value into a String according to the
   /// passed [pattern].
   ///
-  /// If [invertSeparator] is true then the role of the '.' and ',' are
-  /// reversed. By default the '.' is used as the decimal separator
-  /// whilst the ',' is used as the grouping separator.
+  /// [decimalSeparator] and [groupSeparator] are optional and
+  /// default to '.' and ',' respectively.
   ///
   /// 0 A single digit
   /// # A single digit, omitted if the value is zero
-  /// . or , Decimal separator dependant on [invertSeparator]
-  /// - Minus sign
-  /// , or . Grouping separator dependant on [invertSeparator]
-  /// space Space character.
-  ///
   String format(
     String pattern, {
     String decimalSeparator = '.',
