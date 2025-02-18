@@ -116,10 +116,11 @@ class FixedEncoder {
     var patternIndex = integerPatternPart.length - 1;
     var lastIntegerPattern = '#';
 
+    final paddedIntegerPart = integerPart.padLeft(
+        integerPatternPart.replaceAll(RegExp('[^0]'), '').length - 1, '0');
+
     var lIntegerAmount = integerAmount;
-    for (var integerIndex = integerPart.length - 1;
-        integerIndex >= 0;
-        integerIndex--) {
+    for (var integerIndex = paddedIntegerPart.length - 1; integerIndex >= 0;) {
       var patternChar = lastIntegerPattern;
       if (patternIndex >= 0) {
         patternChar = integerPatternPart[patternIndex--];
@@ -128,10 +129,11 @@ class FixedEncoder {
 
       switch (patternChar) {
         case '#':
-          lIntegerAmount = integerPart[integerIndex] + lIntegerAmount;
+          lIntegerAmount = paddedIntegerPart[integerIndex] + lIntegerAmount;
+          integerIndex--;
         case '0':
-          lIntegerAmount = integerPart[integerIndex] + lIntegerAmount;
-
+          lIntegerAmount = paddedIntegerPart[integerIndex] + lIntegerAmount;
+          integerIndex--;
         // just echo group separators into the stream.
         case ',':
         case '.':

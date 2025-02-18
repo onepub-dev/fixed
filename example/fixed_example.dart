@@ -14,7 +14,7 @@ void main() {
 
   /// decimal separator is ','.
   Fixed.parse('1.000.000,234',
-      scale: 2, invertSeparator: true); // == 1000000.23
+      scale: 2, decimalSeparator: ',', groupSeparator: '.'); // == 1000000.23
 
   /// us minor units
   Fixed.fromInt(1234, scale: 3); // == 1.234

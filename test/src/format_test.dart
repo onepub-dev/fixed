@@ -8,8 +8,12 @@ import 'package:test/test.dart';
 
 void main() {
   test('format', () {
-    final euFormat =
-        Fixed.parse('1.000.000,23', invertSeparator: true, scale: 2);
+    final euFormat = Fixed.parse(
+      '1.000.000,23',
+      decimalSeparator: ',',
+      groupSeparator: '.',
+      scale: 2,
+    );
     // Format using a locale
     expect(euFormat.formatIntl('en-AUS'), equals('1,000,000.23'));
 
@@ -47,8 +51,21 @@ void main() {
     final t4 = Fixed.fromInt(10000, scale: 4);
     expect(t4.format('#.#'), equals('1.0'));
     expect(t4.format('#'), equals('1'));
-  });
 
+    final t5 = Fixed.fromInt(1234567, scale: 3);
+    expect(t5.format('#.#'), equals('1234.5'));
+    expect(t5.format('#.##0'), equals('1234.567'));
+    expect(t5.format('#,##0'), equals('1,234'));
+
+    final t6 = Fixed.fromInt(10, scale: 0);
+    expect(t6.format('000,000'), equals('000,010'));
+
+    final t7 = Fixed.fromInt(1234567, scale: 0);
+    expect(t7.format('##,##,###'), equals('12,34,567'));
+
+    final t8 = Fixed.fromInt(376, scale: 0);
+    expect(t8.format('###,###'), equals('376'));
+  });
 
   test('toString', () {
     final t1 = Fixed.fromNum(1.01, scale: 0);
@@ -69,6 +86,4 @@ void main() {
     final t6 = Fixed.fromNum(-1.01, scale: 2);
     expect(t6.toString(), equals('-1.01'));
   });
-
-
 }

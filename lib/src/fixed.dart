@@ -35,21 +35,17 @@ class Fixed implements Comparable<Fixed> {
   /// If the [amount] isn't valid then
   /// a [FixedParseException] is thrown.
   ///
-  /// If [invertSeparator] = false then we
-  /// assume '.' is the decimal place and ',' is the group separator.
-  ///
-  /// If [invertSeparator] = true then we
-  /// assume ',' is the decimal place and '.' is the group separator.
+  /// [decimalSeparator] and [groupSeparator] are optional and
+  /// default to '.' and ',' respectively.
   factory Fixed.parse(
     String amount, {
     int? scale,
-    bool invertSeparator = false,
+    String decimalSeparator = '.',
+    String groupSeparator = ',',
   }) {
     if (scale != null) {
       _checkScale(scale);
     }
-
-    final decimalSeparator = invertSeparator ? ',' : '.';
 
     final decoder = FixedDecoder(
       // ignore: flutter_style_todos
@@ -57,8 +53,8 @@ class Fixed implements Comparable<Fixed> {
       /// as I don't think we actually need one.
       /// We just need to know what char is the decimal place.
       pattern: '#$decimalSeparator#',
-      groupSeparator: invertSeparator ? '.' : ',',
-      decimalSeparator: invertSeparator ? ',' : '.',
+      groupSeparator: groupSeparator,
+      decimalSeparator: decimalSeparator,
     );
     final minorUnitsAndScale = decoder.decode(amount, scale);
     final targetScale = scale ?? minorUnitsAndScale.scale;
@@ -67,6 +63,14 @@ class Fixed implements Comparable<Fixed> {
             existingScale: minorUnitsAndScale.scale, targetScale: targetScale),
         scale: targetScale);
   }
+
+  /// Returns a [Fixed] value from a JSON representation.
+  ///
+  /// The JSON representation includes the [minorUnits] and [scale].
+  factory Fixed.fromJson(Map<String, dynamic> json) => Fixed.fromBigInt(
+        BigInt.parse(json['minorUnits'] as String),
+        scale: (json['scale'] ?? 2) as int,
+      );
 
   /// Creates a Fixed scale value from a double
   /// or integer value and stores the value with
@@ -423,25 +427,20 @@ class Fixed implements Comparable<Fixed> {
   /// Formats a [Fixed] value into a String according to the
   /// passed [pattern].
   ///
-  /// If [invertSeparator] is true then the role of the '.' and ',' are
-  /// reversed. By default the '.' is used as the decimal separator
-  /// whilst the ',' is used as the grouping separator.
+  /// [decimalSeparator] and [groupSeparator] are optional and
+  /// default to '.' and ',' respectively.
   ///
   /// 0 A single digit
   /// # A single digit, omitted if the value is zero
-  /// . or , Decimal separator dependant on [invertSeparator]
-  /// - Minus sign
-  /// , or . Grouping separator dependant on [invertSeparator]
-  /// space Space character.
-  ///
-  String format(String pattern, {bool invertSeparator = false}) {
-    if (!invertSeparator) {
-      return FixedEncoder(pattern).encode(this);
-    } else {
-      return FixedEncoder(pattern, decimalSeparator: ',', groupSeparator: '.')
+  String format(
+    String pattern, {
+    String decimalSeparator = '.',
+    String groupSeparator = ',',
+  }) =>
+      FixedEncoder(pattern,
+              decimalSeparator: decimalSeparator,
+              groupSeparator: groupSeparator)
           .encode(this);
-    }
-  }
 
   /// Formats the value using the [locale]'s decimal pattern.
   ///
@@ -543,18 +542,30 @@ class Fixed implements Comparable<Fixed> {
   static Fixed? tryParse(
     String amount, {
     int scale = 2,
-    bool invertSeparator = false,
+    String decimalSeparator = '.',
+    String groupSeparator = ',',
   }) {
     try {
-      return Fixed.parse(amount,
-          //pattern: pattern,
-          scale: scale,
-          invertSeparator: invertSeparator);
+      return Fixed.parse(
+        amount,
+        //pattern: pattern,
+        scale: scale,
+        decimalSeparator: decimalSeparator,
+        groupSeparator: groupSeparator,
+      );
       // ignore: avoid_catches_without_on_clauses
     } catch (_) {
       return null;
     }
   }
+
+  /// Returns a JSON representation of the [Fixed] value.
+  ///
+  /// The JSON representation includes the [minorUnits] and [scale].
+  Map<String, dynamic> toJson() => {
+        'minorUnits': minorUnits.toString(),
+        'scale': scale,
+      };
 
   static void _checkScale(int scale) {
     if (scale < 0) {
