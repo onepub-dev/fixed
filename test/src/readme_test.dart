@@ -48,7 +48,12 @@ void main() {
     expect(t2.scale, equals(2));
 
     /// for countries that use . for group separators
-    final t3 = Fixed.parse('1.000.000,234', scale: 2, invertSeparator: true);
+    final t3 = Fixed.parse(
+      '1.000.000,234',
+      scale: 2,
+      decimalSeparator: ',',
+      groupSeparator: '.',
+    );
     expect(t3.minorUnits.toInt(), equals(100000023));
     expect(t3.scale, equals(2));
   });
@@ -60,10 +65,11 @@ void main() {
 
     expect(t3.format('00.###0'), equals('01.2340'));
 
-    expect(t3.format('00,###0', invertSeparator: true), equals('01,2340'));
+    expect(t3.format('00,###0', decimalSeparator: ',', groupSeparator: '.'),
+        equals('01,2340'));
 
-    final euFormat =
-        Fixed.parse('1.000.000,23', invertSeparator: true, scale: 2);
+    final euFormat = Fixed.parse('1.000.000,23',
+        decimalSeparator: ',', groupSeparator: '.', scale: 2);
     // Format using a locale
     expect(euFormat.formatIntl('en-AUS'), equals('1,000,000.23'));
 

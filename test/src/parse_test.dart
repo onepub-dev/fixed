@@ -28,11 +28,29 @@ void main() {
     validate(Fixed.parse('1.111', scale: 2),
         sign: 1, integer: 1, decimal: 11, scale: 2);
 
-    validate(Fixed.parse('1,111', scale: 3, invertSeparator: true),
-        sign: 1, integer: 1, decimal: 111, scale: 3);
+    validate(
+        Fixed.parse(
+          '1,111',
+          scale: 3,
+          decimalSeparator: ',',
+          groupSeparator: '.',
+        ),
+        sign: 1,
+        integer: 1,
+        decimal: 111,
+        scale: 3);
 
-    validate(Fixed.parse('10.101,111', scale: 3, invertSeparator: true),
-        sign: 1, integer: 10101, decimal: 111, scale: 3);
+    validate(
+        Fixed.parse(
+          '10.101,111',
+          scale: 3,
+          decimalSeparator: ',',
+          groupSeparator: '.',
+        ),
+        sign: 1,
+        integer: 10101,
+        decimal: 111,
+        scale: 3);
   });
 }
 
