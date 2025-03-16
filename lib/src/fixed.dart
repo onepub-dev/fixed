@@ -220,6 +220,24 @@ class Fixed implements Comparable<Fixed> {
   /// The [integerPart] will contain the sign.
   BigInt get decimalPart => (minorUnits - integerPart * scaleFactor).abs();
 
+  String decimalPartAsString() {
+    var whole = minorUnits.toString();
+
+    /// we will add the -ve when we know where it is to be placed.
+    if (whole.startsWith('-')) {
+      whole = whole.substring(1);
+    }
+
+    if (whole.length < scale) {
+      whole = whole.padLeft(scale, '0');
+    }
+
+    final decimalStart = whole.length - scale;
+    final decimalPart = whole.substring(decimalStart);
+
+    return decimalPart;
+  }
+
   @override
   int get hashCode => minorUnits.hashCode + scale.hashCode;
 
