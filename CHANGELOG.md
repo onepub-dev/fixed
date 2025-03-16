@@ -1,3 +1,6 @@
+# 5.3.3
+- Added method decimalPartAsString which returns the decimal component with leading zeros if required.
+
 # 5.3.2
 - removed max_scale as I don't think it is actually necessary and it was causing rounding errors when doing large multiplications.  The only place a limit seems to be required is in fromNum. Fixed #21
 - upgraded intl to latest version.
