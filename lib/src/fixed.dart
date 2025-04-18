@@ -474,10 +474,11 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns this * [multiplier]
   ///
-  /// The [multiplier] is scaled based on this' [scale].
+  /// If [scale] is not passed then  [multiplier] is scaled based on 
+  /// this' [scale].
   /// The result's [scale] == [scale] * 2.
-  Fixed multiply(num multiplier) =>
-      this * Fixed.fromNum(multiplier, scale: scale);
+  Fixed multiply(num multiplier, {int? scale}) =>
+      this * Fixed.fromNum(multiplier, scale: scale ?? this.scale);
 
   /// Returns this ^ [exponent]
   ///
