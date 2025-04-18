@@ -1,3 +1,6 @@
+# 5.3.4
+- added an optional [scale] to the [multiply] method.
+
 # 5.3.3
 - Added method decimalPartAsString which returns the decimal component with leading zeros if required.
 
