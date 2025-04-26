@@ -501,10 +501,16 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns this * [multiplier]
   ///
-  /// The [multiplier] is scaled based on this' [decimalDigits].
+  /// if you pass [decimalDigits] then it will be used
+  /// to determine the number of decimals to retain from [multiplier].
+  /// If you don't pass [decimalDigits] then this.decimalDigits
+  /// will be used.
+  /// 
   /// The result's [decimalDigits] == [decimalDigits] * 2.
-  Fixed multiply(num multiplier) =>
-      this * Fixed.fromNum(multiplier, decimalDigits: decimalDigits);
+  Fixed multiply(num multiplier, {int? decimalDigits}) =>
+      this *
+      Fixed.fromNum(multiplier,
+          decimalDigits: decimalDigits ?? this.decimalDigits);
 
   /// Returns this ^ [exponent]
   ///
