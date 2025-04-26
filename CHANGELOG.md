@@ -1,3 +1,7 @@
+# 6.0.0-beta.1
+BREAKING: all references to 'scale' (mainly method parameters) have been changed to 'decimalDigits'. This is to bring the package in line with the Money2 package which Fixed was built to support.
+
+Added: 'decimalDigits' to the multiply method so you can now directly control the scale of the passed multiplier.
 # 5.3.3
 - Added method decimalPartAsString which returns the decimal component with leading zeros if required.
 
@@ -30,7 +34,7 @@
 - added unit tests for constant values.
 
 # 5.0.0
-- BREAKING: Changed Fixed.one, Fixed.zero, Fixed.two and Fixed.ten to be 'scale:0' when previously there were scale 16.  This means the display as an integer value (more in line with what is expected) and when combined with other values that have a larger scale then the other value will dictate the scale rather then forcing scale 16 on the results.
+- BREAKING: Changed Fixed.one, Fixed.zero, Fixed.two and Fixed.ten to be 'decimalDigits:0' when previously there were scale 16.  This means the display as an integer value (more in line with what is expected) and when combined with other values that have a larger scale then the other value will dictate the scale rather then forcing scale 16 on the results.
 
 - Fixed a bug in tryParse where it would throw rather than returning null on some input (such as an empty string).
 

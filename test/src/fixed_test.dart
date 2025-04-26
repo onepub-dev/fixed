@@ -8,26 +8,28 @@ import 'package:test/test.dart';
 
 void main() {
   test('examples', () {
-    final rate = Fixed.fromNum(0.75486, scale: 5); // == 0.75486
+    final rate = Fixed.fromNum(0.75486, decimalDigits: 5); // == 0.75486
     expect(rate.toString(), equals('0.75486'));
     expect(rate.format('0.#####'), equals('0.75486'));
-    final auDollars = Fixed.fromNum(1, scale: 2); // == 1.00
-    final usDollarsHighScale = auDollars * rate; // ==0.7548600, scale = 7
-    expect(usDollarsHighScale.minorUnits.toInt(), equals(7548600));
-    expect(usDollarsHighScale.scale, equals(7));
+    final auDollars = Fixed.fromNum(1, decimalDigits: 2); // == 1.00
+    final usDollarsHighDecimalDigits =
+        auDollars * rate; // ==0.7548600, decimalDigits = 7
+    expect(usDollarsHighDecimalDigits.minorUnits.toInt(), equals(7548600));
+    expect(usDollarsHighDecimalDigits.decimalDigits, equals(7));
 
-    /// reduce the scale to 2 decimal places.
-    final usDollars = usDollarsHighScale.copyWith(scale: 2); // == 1.75
+    /// reduce the decimalDigits to 2 decimal places.
+    final usDollars =
+        usDollarsHighDecimalDigits.copyWith(decimalDigits: 2); // == 1.75
     expect(usDollars.minorUnits.toInt(), equals(75));
-    expect(usDollars.scale, equals(2));
+    expect(usDollars.decimalDigits, equals(2));
 
-    /// reduce the scale to 2 decimal places.
-    final winnings = Fixed.fromNum(6, scale: 5); // == 6.00000
-    final winners = Fixed.fromNum(2, scale: 2); // == 2.00
-    final share = winnings / winners; // == 3.00000, scale = 5
+    /// reduce the decimalDigits to 2 decimal places.
+    final winnings = Fixed.fromNum(6, decimalDigits: 5); // == 6.00000
+    final winners = Fixed.fromNum(2, decimalDigits: 2); // == 2.00
+    final share = winnings / winners; // == 3.00000, decimalDigits = 5
 
     expect(share.minorUnits.toInt(), equals(300000));
-    expect(share.scale, 5);
+    expect(share.decimalDigits, 5);
   });
   test('allocate', () {
     final t1 = Fixed.parse('23.84');

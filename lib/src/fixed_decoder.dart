@@ -26,11 +26,11 @@ class FixedDecoder {
 
   /// Parses [monetaryValue] and returns
   /// the value as a BigInt holding the minorUnits
-  MinorUnitsAndScale decode(String monetaryValue, int? scale) {
+  MinorUnitsAndScale decode(String monetaryValue, int? decimalDigits) {
     var majorUnits = BigInt.zero;
     var minorUnits = BigInt.zero;
     // the no. of decimals actually found in the minor units
-    var actualScale = 0;
+    var actualDecimalDigits = 0;
 
     var compressedPattern = compressDigits(pattern);
     compressedPattern = compressWhitespace(compressedPattern);
@@ -55,7 +55,7 @@ class FixedDecoder {
           if (seenMajor) {
             if (valueQueue.isNotEmpty) {
               final minorDigits = valueQueue._takeMinorDigits();
-              actualScale = minorDigits.scale;
+              actualDecimalDigits = minorDigits.decimalDigits;
               minorUnits = minorDigits.value;
             }
           } else {
@@ -83,8 +83,9 @@ class FixedDecoder {
       }
     }
 
-    final value = majorUnits * BigInt.from(10).pow(actualScale) + minorUnits;
-    return MinorUnitsAndScale(isNegative ? -value : value, actualScale);
+    final value =
+        majorUnits * BigInt.from(10).pow(actualDecimalDigits) + minorUnits;
+    return MinorUnitsAndScale(isNegative ? -value : value, actualDecimalDigits);
   }
 
   ///
@@ -219,13 +220,13 @@ class ValueQueue {
 }
 
 class _MinorDigits {
-  _MinorDigits(this.value, this.scale);
+  _MinorDigits(this.value, this.decimalDigits);
   BigInt value;
-  int scale;
+  int decimalDigits;
 }
 
 class MinorUnitsAndScale {
-  MinorUnitsAndScale(this.value, this.scale);
+  MinorUnitsAndScale(this.value, this.decimalDigits);
   BigInt value;
-  int scale;
+  int decimalDigits;
 }

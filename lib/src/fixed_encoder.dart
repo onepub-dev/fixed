@@ -62,11 +62,11 @@ class FixedEncoder {
       whole = whole.substring(1);
     }
 
-    if (whole.length < amount.scale) {
-      whole = whole.padLeft(amount.scale, '0');
+    if (whole.length < amount.decimalDigits) {
+      whole = whole.padLeft(amount.decimalDigits, '0');
     }
 
-    final decimalStart = whole.length - amount.scale;
+    final decimalStart = whole.length - amount.decimalDigits;
     final integerPart = whole.substring(0, decimalStart);
     final decimalPart = whole.substring(decimalStart);
 
@@ -314,8 +314,8 @@ class FixedEncoder {
   //   /// If the pattern is longer than the minor digits we need to clip the
   //   /// pattern and add trailing zeros back at the end.
   //   const extendFormatWithZeros = 0;
-  //   if (moneyPattern.length > amount.scale) {
-  //     moneyPattern = moneyPattern.substring(0, amount.scale);
+  //   if (moneyPattern.length > amount.decimalDigits) {
+  //     moneyPattern = moneyPattern.substring(0, amount.decimalDigits);
   //     // extendFormatWithZeros
 
   //   }
@@ -333,11 +333,11 @@ class FixedEncoder {
   //   var formattedMinorUnits =
   //       NumberFormat(moneyPattern).format(decimals.toInt());
 
-  //   /// If the scale is 4 and minorunits = 10
+  //   /// If the decimalDigits are 4 and minorunits = 10
   //   /// then the number format will produce 10 rather than 0010
   //   /// So we need to add leading zeros
-  //   if (formattedMinorUnits.length < amount.scale) {
-  //     final leadingZeros = amount.scale - formattedMinorUnits.length;
+  //   if (formattedMinorUnits.length < amount.decimalDigits) {
+  //     final leadingZeros = amount.decimalDigits - formattedMinorUnits.length;
   //     formattedMinorUnits = '${'0' * leadingZeros}$formattedMinorUnits';
   //   }
 
@@ -352,7 +352,7 @@ class FixedEncoder {
   //   // when we are trying to format a decimal.
   //   // Move leading zeros to the end when minor units >= 10 - i.e.,
   //   // we want to keep the leading zeros for single digit cents.
-  //   if (decimals.toInt() >= amount.scaleFactor.toInt()) {
+  //   if (decimals.toInt() >= amount.decimalDigits.toInt()) {
   //     formatted = invertZeros(formatted);
   //   }
 

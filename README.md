@@ -19,12 +19,12 @@ Fixed is sponsored by OnePub, the Dart private package repository.
 You can create a Fixed instance from a number sources
 ```dart
 var t1 = Fixed.fromNum(1); /// == 1.00
-var t2 = Fixed.fromNum(1, scale: 3); /// == 1.000
+var t2 = Fixed.fromNum(1, decimalDigits: 3); /// == 1.000
 
 var add = t1 + 10;
 var multiply = t1 * t2;
 
-var t3 = Fixed.parse("1.23356"); // == 1.23356, scale: 5
+var t3 = Fixed.parse("1.23356"); // == 1.23356, decimalDigits: 5
 
 if (t1 == t2) // true
 {

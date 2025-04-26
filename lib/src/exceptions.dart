@@ -41,7 +41,7 @@ class IllegalFixedPatternException extends FixedException {
 /// Thrown if a number larger than the supported ranges is
 /// passed in.
 /// This will only occur if you call [Fixed.fromNum] with
-/// scale > 20 or a absolute value of > 10^21
+/// decimalDigits > 20 or a absolute value of > 10^21
 /// If you need larger numbers then use one of the alternate
 /// constructors.
 class AmountTooLargeException extends FixedException {

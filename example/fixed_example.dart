@@ -6,18 +6,18 @@
 import 'package:fixed/fixed.dart';
 
 void main() {
-  final fixed = Fixed.fromNum(1, scale: 2); // == 1.00
+  final fixed = Fixed.fromNum(1, decimalDigits: 2); // == 1.00
 
-  Fixed.parse('1.234', scale: 2); // == 1.23;
+  Fixed.parse('1.234', decimalDigits: 2); // == 1.23;
 
-  Fixed.parse('1,000,000.234', scale: 2); // == 1000000.23
+  Fixed.parse('1,000,000.234', decimalDigits: 2); // == 1000000.23
 
   /// decimal separator is ','.
   Fixed.parse('1.000.000,234',
-      scale: 2, invertSeparator: true); // == 1000000.23
+      decimalDigits: 2, invertSeparator: true); // == 1000000.23
 
   /// us minor units
-  Fixed.fromInt(1234, scale: 3); // == 1.234
+  Fixed.fromInt(1234, decimalDigits: 3); // == 1.234
 
   /// use default formatting
   print(fixed);
