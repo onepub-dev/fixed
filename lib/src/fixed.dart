@@ -501,17 +501,10 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns this * [multiplier]
   ///
-  /// The [multiplier]'s decimal digits is controlled by [decimalDigits], if
-  /// not passed then we using the Money instance's number of [decimalDigits].
-  ///
-  /// Be careful as the number of [decimalDigits] can yield unexpected results:
-  /// e.g. 0.4 with zero decimalDigits is treated as 0.
-  ///
-  /// The decimalDigits of the result is [decimalDigits] + this.[decimalDigits].
-  Fixed multiply(num multiplier, {int? decimalDigits}) =>
-      this *
-      Fixed.fromNum(multiplier,
-          decimalDigits: decimalDigits ?? this.decimalDigits);
+  /// The [multiplier] is scaled based on this' [decimalDigits].
+  /// The result's [decimalDigits] == [decimalDigits] * 2.
+  Fixed multiply(num multiplier) =>
+      this * Fixed.fromNum(multiplier, decimalDigits: decimalDigits);
 
   /// Returns this ^ [exponent]
   ///

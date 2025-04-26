@@ -1,7 +1,11 @@
-# 6.0.0-beta.1
+# 6.0.0
 BREAKING: all references to 'scale' (mainly method parameters) have been changed to 'decimalDigits'. This is to bring the package in line with the Money2 package which Fixed was built to support.
 
 Added: 'decimalDigits' to the multiply method so you can now directly control the scale of the passed multiplier.
+
+# 5.3.4
+- added an optional [scale] to the [multiply] method.
+
 # 5.3.3
 - Added method decimalPartAsString which returns the decimal component with leading zeros if required.
 
