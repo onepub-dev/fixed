@@ -3,8 +3,9 @@ import 'fixed.dart';
 /// Base exception of all exceptions
 /// thrown from the Fixed package.
 class FixedException implements Exception {
-  FixedException(this.message);
   String message;
+
+  FixedException(this.message);
 
   @override
   String toString() => message;

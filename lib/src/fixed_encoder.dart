@@ -8,16 +8,16 @@ import 'fixed.dart';
 
 /// Encodes a fixed value based on a pattern.
 class FixedEncoder {
-  ///
-  FixedEncoder(this.pattern,
-      {this.decimalSeparator = '.', this.groupSeparator = ','});
-
   /// the pattern to encode to.
   String pattern;
 
   String decimalSeparator;
 
   String groupSeparator;
+
+  ///
+  FixedEncoder(this.pattern,
+      {this.decimalSeparator = '.', this.groupSeparator = ','});
 
   String encode(Fixed amount) {
     // String formatted;
@@ -226,179 +226,6 @@ class FixedEncoder {
     }
     return lDecimalAmount;
   }
-
-  // /// Formats the major part of the [amount].
-  // String formatMajorPart(Fixed amount, final String majorPattern) {
-  //   var formatted = '';
-
-  //   // extract the contiguous money components made up of 0 # , and .
-  //   final moneyPattern = getMoneyPattern(majorPattern);
-  //   checkZeros(moneyPattern, groupSeparator, minor: false);
-
-  //   final wholeNumberPart = amount.integerPart;
-
-  //   final formattedMajorUnits =
-  //       getFormattedMajorUnits(amount, moneyPattern, wholeNumberPart);
-
-  //   // replace the the money components with a single #
-  //   var compressedMajorPattern = compressMoney(majorPattern);
-
-  //   // Replace the compressed patterns with actual values.
-  //   // The periods and commas have already been removed from the pattern.
-  //   for (var i = 0; i < compressedMajorPattern.length; i++) {
-  //     final char = compressedMajorPattern[i];
-  //     switch (char) {
-  //       case '#':
-  //         formatted += formattedMajorUnits;
-  //         break;
-  //       case ' ':
-  //         formatted += ' ';
-  //         break;
-  //       case '0':
-  //       case ',':
-  //       case '.':
-  //       default:
-  //         throw IllegalPatternException(
-  //             "The pattern contains an unknown character: '$char'");
-  //     }
-  //   }
-
-  //   return formatted;
-  // }
-
-  // ///
-  // String getFormattedMajorUnits(
-  //     Fixed amount, final String moneyPattern, BigInt majorUnits) {
-  //   String normalisedMoneyPattern;
-  //   if (decimalSeparator == ',') {
-  //     // the NumberFormat doesn't like the inverted characters
-  //     // so we normalise them for the conversion.
-  //     normalisedMoneyPattern = moneyPattern.replaceAll('.', ',');
-  //   } else {
-  //     normalisedMoneyPattern = moneyPattern;
-  //   }
-  //   // format the no. into that pattern.
-  //   var formattedMajorUnits =
-  //       NumberFormat(normalisedMoneyPattern).format(majorUnits.toInt());
-
-  //   if (!majorUnits.isNegative && amount.minorUnits.isNegative) {
-  //     formattedMajorUnits = '-$formattedMajorUnits';
-  //   }
-
-  //   if (decimalSeparator == ',') {
-  //     // Now convert them back
-  //     formattedMajorUnits = formattedMajorUnits.replaceAll(',', '.');
-  //   }
-  //   return formattedMajorUnits;
-  // }
-
-  // ///
-  // String formatMinorPart(Fixed amount, String minorPattern) {
-  //   var formatted = '';
-
-  //   // extract the contiguous money components made up of 0 # , and .
-  //   var moneyPattern = getMoneyPattern(minorPattern);
-
-  //   /// check that the zeros are only at is at the end of the pattern.
-  //   checkZeros(moneyPattern, groupSeparator, minor: true);
-
-  //   /// If there are trailing zeros then we must ensure
-  //   /// the final string is at least [requiredPatternWidth] or if
-  //   /// its not then we pad with zeros.
-  //   var requiredPatternWidth = 0;
-  //   final firstZero = moneyPattern.indexOf('0');
-  //   if (firstZero != -1) {
-  //     requiredPatternWidth = moneyPattern.length;
-  //   }
-
-  //   /// If the pattern is longer than the minor digits we need to clip the
-  //   /// pattern and add trailing zeros back at the end.
-  //   const extendFormatWithZeros = 0;
-  //   if (moneyPattern.length > amount.scale) {
-  //     moneyPattern = moneyPattern.substring(0, amount.scale);
-  //     // extendFormatWithZeros
-
-  //   }
-
-  //   final decimals = amount.decimalPart;
-
-  //   // format the no. using the pattern.
-  //   // In order for Number format to minor units
-  //   // with proper 0s, we first add [minorDigitsFactor] and then strip the 1
-  //   // after being formatted.
-  //   //
-  //   // e.g., using ## to format 1 would result in 1, but we want it
-  //   // formatted as 01 because it is really the decimal part of the number.
-
-  //   var formattedMinorUnits =
-  //       NumberFormat(moneyPattern).format(decimals.toInt());
-
-  //   /// If the scale is 4 and minorunits = 10
-  //   /// then the number format will produce 10 rather than 0010
-  //   /// So we need to add leading zeros
-  //   if (formattedMinorUnits.length < amount.scale) {
-  //     final leadingZeros = amount.scale - formattedMinorUnits.length;
-  //     formattedMinorUnits = '${'0' * leadingZeros}$formattedMinorUnits';
-  //   }
-
-  //   // money pattern is short, so we need to force a truncation as
-  //   // NumberFormat doesn't know we are dealing with minor units.
-  //   if (moneyPattern.length < formattedMinorUnits.length) {
-  //     formattedMinorUnits =
-  //         formattedMinorUnits.substring(0, moneyPattern.length);
-  //   }
-
-  //   // Fixed problems caused by passing a int to the NumberFormat
-  //   // when we are trying to format a decimal.
-  //   // Move leading zeros to the end when minor units >= 10 - i.e.,
-  //   // we want to keep the leading zeros for single digit cents.
-  //   if (decimals.toInt() >= amount.scaleFactor.toInt()) {
-  //     formatted = invertZeros(formatted);
-  //   }
-
-  //   // If the no. of decimal digits contained in the minorunits
-  //   // then we need to pad the result.
-  //   if (formattedMinorUnits.length < moneyPattern.length) {
-  //     formattedMinorUnits.padLeft(moneyPattern.length
-  //      - formatted.length, '0');
-  //   }
-
-  //   // Add trailing zeros if the pattern width requires it
-  //   if (requiredPatternWidth != 0) {
-  //     formattedMinorUnits =
-  //         formattedMinorUnits.padRight(requiredPatternWidth, '0');
-  //   }
-
-  //   if (extendFormatWithZeros != 0) {
-  //     formattedMinorUnits =
-  //         formattedMinorUnits.padRight(extendFormatWithZeros, '0');
-  //   }
-
-  //   // replace the the money components in the pattern with a single #
-  //   var compressedMinorPattern = compressMoney(minorPattern);
-
-  //   // expand the pattern
-  //   for (var i = 0; i < compressedMinorPattern.length; i++) {
-  //     final char = compressedMinorPattern[i];
-  //     switch (char) {
-  //       case '#':
-  //         formatted += formattedMinorUnits;
-  //         break;
-  //       case ' ':
-  //         formatted += ' ';
-  //         break;
-  //       case '0':
-  //       case ',':
-  //       case '.':
-  //       default:
-  //         throw IllegalPatternException(
-  //             "The minor part of the pattern contains an unexpected "
-  //              "character: '$char'");
-  //     }
-  //   }
-
-  //   return formatted;
-  // }
 
   /// Just extract the number specific format chacters leaving out
   /// currency and symbols

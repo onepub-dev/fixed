@@ -9,6 +9,13 @@ import 'exceptions.dart';
 
 /// Decodes a monetary amount based on a pattern.
 class FixedDecoder {
+  /// the pattern used to decode the amount.
+  final String pattern;
+
+  final String decimalSeparator;
+
+  final String groupSeparator;
+
   /// ctor
   FixedDecoder({
     required this.pattern,
@@ -17,12 +24,6 @@ class FixedDecoder {
   }) {
     ArgumentError.checkNotNull(pattern, 'pattern');
   }
-
-  /// the pattern used to decode the amount.
-  final String pattern;
-
-  final String decimalSeparator;
-  final String groupSeparator;
 
   /// Parses [monetaryValue] and returns
   /// the value as a BigInt holding the minorUnits
@@ -137,9 +138,6 @@ class FixedDecoder {
 /// Takes a monetary value and turns it into a queue
 /// of digits which can be taken one at a time.
 class ValueQueue {
-  ///
-  ValueQueue(this.monetaryValue, this.groupSeparator, this.decimalSeparator);
-
   /// the amount we are queuing the digits of.
   String monetaryValue;
 
@@ -154,6 +152,9 @@ class ValueQueue {
 
   /// The last character we took from the queue.
   String? lastTake;
+
+  ///
+  ValueQueue(this.monetaryValue, this.groupSeparator, this.decimalSeparator);
 
   String peek() => monetaryValue[index];
 
@@ -219,13 +220,17 @@ class ValueQueue {
 }
 
 class _MinorDigits {
-  _MinorDigits(this.value, this.scale);
   BigInt value;
+
   int scale;
+
+  _MinorDigits(this.value, this.scale);
 }
 
 class MinorUnitsAndScale {
-  MinorUnitsAndScale(this.value, this.scale);
   BigInt value;
+
   int scale;
+
+  MinorUnitsAndScale(this.value, this.scale);
 }

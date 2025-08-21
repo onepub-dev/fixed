@@ -24,6 +24,41 @@ import 'fixed_encoder.dart';
 /// ```
 @immutable
 class Fixed implements Comparable<Fixed> {
+  static const int maxInt = platform_consts.maxInt;
+
+  static const int minInt = platform_consts.minInt;
+
+  // The value zero with [scale] = 0
+  static final Fixed zero = Fixed.fromNum(0, scale: 0);
+
+  /// The value 1 with [scale] =0
+  static final Fixed one = Fixed.fromNum(1, scale: 0);
+
+  /// The value 2 with [scale] = 0
+  static final Fixed two = Fixed.fromNum(2, scale: 0);
+
+  /// The value 10 with [scale] = 0
+  static final Fixed ten = Fixed.fromNum(10, scale: 0);
+
+  /// The value of this [Fixed] instance stored as minorUnits in a [BigInt].
+  /// If the scale is 2 then 1 is stored as 100
+  /// If the scale is 3 then 1 is stored as 1000.
+  late final BigInt minorUnits;
+
+  /// Returns this as minor units.
+  ///
+  /// e.g.
+  /// ```dart
+  /// Fixed.fromNum(1.234, scale: 3).minorUnits = 1234
+  /// ```
+  // late final BigInt minorUnits = (value * Decimal.ten.pow(scale)).toBigInt();
+
+  /// The scale to which we store the amount.
+  ///
+  /// A scale of 2 means we store the value to
+  /// two decimal places.
+  final int scale;
+
   /// Parses [amount] as a decimal value.
   ///
   /// The [scale] controls the number of decimal
@@ -177,39 +212,6 @@ class Fixed implements Comparable<Fixed> {
         _rescale(minorUnits, existingScale: this.scale, targetScale: scale),
         scale: scale);
   }
-
-  static const int maxInt = platform_consts.maxInt;
-  static const int minInt = platform_consts.minInt;
-  // The value zero with [scale] = 0
-  static final Fixed zero = Fixed.fromNum(0, scale: 0);
-
-  /// The value 1 with [scale] =0
-  static final Fixed one = Fixed.fromNum(1, scale: 0);
-
-  /// The value 2 with [scale] = 0
-  static final Fixed two = Fixed.fromNum(2, scale: 0);
-
-  /// The value 10 with [scale] = 0
-  static final Fixed ten = Fixed.fromNum(10, scale: 0);
-
-  /// The value of this [Fixed] instance stored as minorUnits in a [BigInt].
-  /// If the scale is 2 then 1 is stored as 100
-  /// If the scale is 3 then 1 is stored as 1000.
-  late final BigInt minorUnits;
-
-  /// Returns this as minor units.
-  ///
-  /// e.g.
-  /// ```dart
-  /// Fixed.fromNum(1.234, scale: 3).minorUnits = 1234
-  /// ```
-  // late final BigInt minorUnits = (value * Decimal.ten.pow(scale)).toBigInt();
-
-  /// The scale to which we store the amount.
-  ///
-  /// A scale of 2 means we store the value to
-  /// two decimal places.
-  final int scale;
 
   /// Returns the absolute value of this.
   Fixed get abs => isNegative ? -this : this;
@@ -661,7 +663,9 @@ class Fixed implements Comparable<Fixed> {
 }
 
 class _Scaled2 {
-  _Scaled2(this.one, this.two);
   Fixed one;
+
   Fixed two;
+
+  _Scaled2(this.one, this.two);
 }
