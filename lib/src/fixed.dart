@@ -29,16 +29,16 @@ class Fixed implements Comparable<Fixed> {
   static const int minInt = platform_consts.minInt;
 
   // The value zero with [scale] = 0
-  static final Fixed zero = Fixed.fromNum(0, scale: 0);
+  static final zero = Fixed.fromNum(0, scale: 0);
 
   /// The value 1 with [scale] =0
-  static final Fixed one = Fixed.fromNum(1, scale: 0);
+  static final one = Fixed.fromNum(1, scale: 0);
 
   /// The value 2 with [scale] = 0
-  static final Fixed two = Fixed.fromNum(2, scale: 0);
+  static final two = Fixed.fromNum(2, scale: 0);
 
   /// The value 10 with [scale] = 0
-  static final Fixed ten = Fixed.fromNum(10, scale: 0);
+  static final ten = Fixed.fromNum(10, scale: 0);
 
   /// The value of this [Fixed] instance stored as minorUnits in a [BigInt].
   /// If the scale is 2 then 1 is stored as 100
@@ -476,7 +476,7 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns this * [multiplier]
   ///
-  /// If [scale] is not passed then  [multiplier] is scaled based on 
+  /// If [scale] is not passed then  [multiplier] is scaled based on
   /// this' [scale].
   /// The result's [scale] == [scale] * 2.
   Fixed multiply(num multiplier, {int? scale}) =>
@@ -485,8 +485,27 @@ class Fixed implements Comparable<Fixed> {
   /// Returns this ^ [exponent]
   ///
   /// The returned value has the same [scale] as this.
-  Fixed pow(int exponent) =>
-      Fixed.fromBigInt(minorUnits.pow(exponent), scale: scale);
+  Fixed pow(int exponent) {
+    if (exponent < 0) {
+      throw ArgumentError.value(exponent, 'exponent',
+          'Negative exponents are not supported for Fixed.');
+    }
+    if (exponent == 0) {
+      // 1.0 at the same scale
+      return Fixed.fromNum(1, scale: scale);
+    }
+    if (exponent == 1) {
+      return this;
+    }
+
+    final raised = minorUnits.pow(exponent);
+    final scaleDiff = scale * (exponent - 1);
+
+    // Divide by 10^scaleDiff with half-away-from-zero rounding
+    final adjusted = _roundHalfAwayFromZero(raised, scaleDiff);
+
+    return Fixed.fromBigInt(adjusted, scale: scale);
+  }
 
   /// Returns the remainder of dividing this / [divisor].
   ///
