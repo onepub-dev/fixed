@@ -3,11 +3,11 @@ import 'package:test/test.dart';
 
 void main() {
   test('is', () {
-    final t1 = Fixed.fromNum(2.01, scale: 2);
-    final t2 = Fixed.fromNum(-2.01, scale: 5);
+    final t1 = Fixed.fromNum(2.01, decimalDigits: 2);
+    final t2 = Fixed.fromNum(-2.01, decimalDigits: 5);
 
-    final t3 = Fixed.fromNum(-0.01, scale: 1);
-    final t4 = Fixed.fromNum(0, scale: 5);
+    final t3 = Fixed.fromNum(-0.01, decimalDigits: 1);
+    final t4 = Fixed.fromNum(0, decimalDigits: 5);
 
     expect(t1.isNegative, isFalse);
     expect(t2.isNegative, isTrue);
@@ -20,11 +20,11 @@ void main() {
   });
 
   test('compare', () {
-    final t1 = Fixed.fromNum(1.01, scale: 0);
-    final t2 = Fixed.fromNum(1.01, scale: 1);
-    final t3 = Fixed.fromNum(1.01, scale: 2);
-    final t4 = Fixed.fromNum(2.01, scale: 2);
-    final t5 = Fixed.fromNum(2.01, scale: 2);
+    final t1 = Fixed.fromNum(1.01, decimalDigits: 0);
+    final t2 = Fixed.fromNum(1.01, decimalDigits: 1);
+    final t3 = Fixed.fromNum(1.01, decimalDigits: 2);
+    final t4 = Fixed.fromNum(2.01, decimalDigits: 2);
+    final t5 = Fixed.fromNum(2.01, decimalDigits: 2);
 
     expect(t1 == t1, isTrue);
 

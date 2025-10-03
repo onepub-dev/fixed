@@ -5,13 +5,14 @@
 
 import 'dart:math';
 
-BigInt calcScaleFactor(int scale) {
-  if (scale.isNegative) {
+/// returns 10 ^ [decimalDigits]
+BigInt calcScaleFactor(int decimalDigits) {
+  if (decimalDigits.isNegative) {
     throw ArgumentError.value(
-      scale,
-      'scale',
+      decimalDigits,
+      'decimalDigits',
       'Must be a non-negative value.',
     );
   }
-  return BigInt.from(pow(10, scale));
+  return BigInt.from(pow(10, decimalDigits));
 }

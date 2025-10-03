@@ -11,14 +11,20 @@ class FixedEncoder {
   /// the pattern to encode to.
   String pattern;
 
+  /// the decimal separator used in the pattern.
   String decimalSeparator;
 
+  /// the group separator used in the pattern.
   String groupSeparator;
 
   ///
   FixedEncoder(this.pattern,
       {this.decimalSeparator = '.', this.groupSeparator = ','});
 
+  /// Encodes [amount] using the [pattern] specified in the constructor.
+  /// The pattern must contain only the characters '#', '0', ',','.' and
+  /// whitespace. The pattern may contain other characters but these will
+  /// cause an [IllegalFixedPatternException] to be thrown.
   String encode(Fixed amount) {
     // String formatted;
 
@@ -51,10 +57,10 @@ class FixedEncoder {
     // }
 
     // return formatted;
-    return format2(amount, pattern);
+    return _format(amount, pattern);
   }
 
-  String format2(Fixed amount, String pattern) {
+  String _format(Fixed amount, String pattern) {
     var whole = amount.minorUnits.toString();
 
     /// we will add the -ve when we know where it is to be placed.
@@ -62,11 +68,11 @@ class FixedEncoder {
       whole = whole.substring(1);
     }
 
-    if (whole.length < amount.scale) {
-      whole = whole.padLeft(amount.scale, '0');
+    if (whole.length < amount.decimalDigits) {
+      whole = whole.padLeft(amount.decimalDigits, '0');
     }
 
-    final decimalStart = whole.length - amount.scale;
+    final decimalStart = whole.length - amount.decimalDigits;
     final integerPart = whole.substring(0, decimalStart);
     final decimalPart = whole.substring(decimalStart);
 

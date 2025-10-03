@@ -10,13 +10,13 @@ void main() {
   test('issue #63 from Money2', () {
     final amount = Fixed.fromNum(121);
     final percent = Fixed.fromNum(1.21);
-    final result = (amount / percent).copyWith(scale: 0)..toString();
-    expect(result, equals(Fixed.fromNum(100, scale: 0)));
+    final result = (amount / percent).copyWith(decimalDigits: 0)..toString();
+    expect(result, equals(Fixed.fromNum(100, decimalDigits: 0)));
   });
 
   test('issue wrong result #19', () {
-    final v1 = Fixed.fromInt(123456789, scale: 1);
-    final v2 = Fixed.fromInt(123456789, scale: 5);
+    final v1 = Fixed.fromInt(123456789, decimalDigits: 1);
+    final v2 = Fixed.fromInt(123456789, decimalDigits: 5);
     expect(v1 * v2, equals(Fixed.parse('15241578750.190521')));
   });
 }

@@ -15,7 +15,7 @@
 /// the precision is only limited by the size of memory.
 ///
 /// A range of mathematical comparision operations are supported.
-library fixed;
+library;
 
 export 'src/exceptions.dart';
 export 'src/fixed.dart';

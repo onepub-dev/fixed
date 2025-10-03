@@ -12,8 +12,10 @@ class FixedDecoder {
   /// the pattern used to decode the amount.
   final String pattern;
 
+  /// the decimal separator used in the pattern.
   final String decimalSeparator;
 
+  ///  the group separator used in the pattern.
   final String groupSeparator;
 
   /// ctor
@@ -27,11 +29,11 @@ class FixedDecoder {
 
   /// Parses [monetaryValue] and returns
   /// the value as a BigInt holding the minorUnits
-  MinorUnitsAndScale decode(String monetaryValue, int? scale) {
+  MinorUnitsAndScale decode(String monetaryValue, int? decimalDigits) {
     var majorUnits = BigInt.zero;
     var minorUnits = BigInt.zero;
     // the no. of decimals actually found in the minor units
-    var actualScale = 0;
+    var actualDecimalDigits = 0;
 
     var compressedPattern = compressDigits(pattern);
     compressedPattern = compressWhitespace(compressedPattern);
@@ -56,7 +58,7 @@ class FixedDecoder {
           if (seenMajor) {
             if (valueQueue.isNotEmpty) {
               final minorDigits = valueQueue._takeMinorDigits();
-              actualScale = minorDigits.scale;
+              actualDecimalDigits = minorDigits.decimalDigits;
               minorUnits = minorDigits.value;
             }
           } else {
@@ -84,8 +86,9 @@ class FixedDecoder {
       }
     }
 
-    final value = majorUnits * BigInt.from(10).pow(actualScale) + minorUnits;
-    return MinorUnitsAndScale(isNegative ? -value : value, actualScale);
+    final value =
+        majorUnits * BigInt.from(10).pow(actualDecimalDigits) + minorUnits;
+    return MinorUnitsAndScale(isNegative ? -value : value, actualDecimalDigits);
   }
 
   ///
@@ -142,7 +145,7 @@ class ValueQueue {
   String monetaryValue;
 
   /// current index into the [monetaryValue]
-  int index = 0;
+  var index = 0;
 
   /// the group seperator used in this [monetaryValue]
   String groupSeparator;
@@ -156,13 +159,16 @@ class ValueQueue {
   ///
   ValueQueue(this.monetaryValue, this.groupSeparator, this.decimalSeparator);
 
+  /// peeks at the next character from the value.
   String peek() => monetaryValue[index];
 
   /// takes the next character from the value.
   String takeOne() => lastTake = monetaryValue[index++];
 
+  /// true if we have reached the end of the value.
   bool get isEmpty => monetaryValue.length == index;
 
+  /// true if we have not reached the end of the value.
   bool get isNotEmpty => !isEmpty;
 
   /// takes the next [n] character from the value.
@@ -191,6 +197,8 @@ class ValueQueue {
     return _MinorDigits(BigInt.parse(digits), digits.length);
   }
 
+  /// return all of the digits from the current position
+  /// until we find a non-digit.
   String takeDigits() {
     var digits = ''; //  = lastTake;
 
@@ -222,15 +230,19 @@ class ValueQueue {
 class _MinorDigits {
   BigInt value;
 
-  int scale;
+  int decimalDigits;
 
-  _MinorDigits(this.value, this.scale);
+  _MinorDigits(this.value, this.decimalDigits);
 }
 
+/// Holds a value as minorUnits and the scale (decimalDigits)
 class MinorUnitsAndScale {
+  /// the value in minor units.
   BigInt value;
 
-  int scale;
+  /// the scale (no. of decimal digits)
+  int decimalDigits;
 
-  MinorUnitsAndScale(this.value, this.scale);
+  /// ctor
+  MinorUnitsAndScale(this.value, this.decimalDigits);
 }

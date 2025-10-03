@@ -3,8 +3,11 @@ import 'fixed.dart';
 /// Base exception of all exceptions
 /// thrown from the Fixed package.
 class FixedException implements Exception {
+  /// The exception message.
   String message;
 
+  /// Base exception of all exceptions
+  /// thrown from the Fixed package.
   FixedException(this.message);
 
   @override
@@ -42,9 +45,15 @@ class IllegalFixedPatternException extends FixedException {
 /// Thrown if a number larger than the supported ranges is
 /// passed in.
 /// This will only occur if you call [Fixed.fromNum] with
-/// scale > 20 or a absolute value of > 10^21
+/// decimalDigits > 20 or a absolute value of > 10^21
 /// If you need larger numbers then use one of the alternate
 /// constructors.
 class AmountTooLargeException extends FixedException {
+  /// Thrown if a number larger than the supported ranges is
+  /// passed in.
+  /// This will only occur if you call [Fixed.fromNum] with
+  /// decimalDigits > 20 or a absolute value of > 10^21
+  /// If you need larger numbers then use one of the alternate
+  /// constructors.
   AmountTooLargeException(super.message);
 }

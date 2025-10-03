@@ -15,58 +15,69 @@ import 'exceptions.dart';
 import 'fixed_decoder.dart';
 import 'fixed_encoder.dart';
 
-/// Represents a fixed scale decimal no.
+/// Represents a number with a fixed number of decimal digits
+/// allowing precision mathematics without rounding errors.
+///
+/// The Fixed package also provides formatting and parsing of
+/// Fixed values.
+///
+/// Fixed internally uses a BigInt which means the maximum size
+/// of a number is only limited by memory.
 ///
 /// The value is stored using the minor units
 /// e.g.
 /// ```dart
-/// Fixed.fromInt(100, scale: 2) == 1.00
+/// Fixed.fromInt(100, decimalDigits: 2) == 1.00
 /// ```
 @immutable
 class Fixed implements Comparable<Fixed> {
+  /// Common constants for all platforms.
   static const int maxInt = platform_consts.maxInt;
 
+  /// Common constants for all platforms.
   static const int minInt = platform_consts.minInt;
 
-  // The value zero with [scale] = 0
-  static final zero = Fixed.fromNum(0, scale: 0);
+  /// The value zero with [decimalDigits] = 0
+  static final zero = Fixed.fromNum(0, decimalDigits: 0);
 
-  /// The value 1 with [scale] =0
-  static final one = Fixed.fromNum(1, scale: 0);
+  /// The value 1 with [decimalDigits] =0
+  static final one = Fixed.fromNum(1, decimalDigits: 0);
 
-  /// The value 2 with [scale] = 0
-  static final two = Fixed.fromNum(2, scale: 0);
+  /// The value 2 with [decimalDigits] = 0
+  static final two = Fixed.fromNum(2, decimalDigits: 0);
 
-  /// The value 10 with [scale] = 0
-  static final ten = Fixed.fromNum(10, scale: 0);
+  /// The value 10 with [decimalDigits] = 0
+  static final ten = Fixed.fromNum(10, decimalDigits: 0);
 
   /// The value of this [Fixed] instance stored as minorUnits in a [BigInt].
-  /// If the scale is 2 then 1 is stored as 100
-  /// If the scale is 3 then 1 is stored as 1000.
+  /// If the decimalDigits is 2 then 1 is stored as 100
+  /// If the decimalDigits is 3 then 1 is stored as 1000.
   late final BigInt minorUnits;
 
   /// Returns this as minor units.
   ///
   /// e.g.
   /// ```dart
-  /// Fixed.fromNum(1.234, scale: 3).minorUnits = 1234
-  /// ```
-  // late final BigInt minorUnits = (value * Decimal.ten.pow(scale)).toBigInt();
-
-  /// The scale to which we store the amount.
+  /// Fixed.fromNum(1.234, decimalDigits: 3).minorUnits = 1234
   ///
-  /// A scale of 2 means we store the value to
+  /// late final BigInt minorUnits =
+  ///    (value * Decimal.ten.pow(decimalDigits)).toBigInt();
+  /// ```
+  ///
+  /// The decimalDigits with which we store the amount.
+  ///
+  /// A decimalDigits of 2 means we store the value to
   /// two decimal places.
-  final int scale;
+  final int decimalDigits;
 
   /// Parses [amount] as a decimal value.
   ///
-  /// The [scale] controls the number of decimal
+  /// The [decimalDigits] controls the number of decimal
   /// places to be retained.
-  /// If [scale] is not passed then the scale is determined
+  /// If [decimalDigits] is not passed then the decimalDigits is determined
   /// by the number of decimal places present in the passed [amount].
   ///
-  /// If [scale] < 0 then a FixedException will be thrown.
+  /// If [decimalDigits] < 0 then a FixedException will be thrown.
   /// If the [amount] isn't valid then
   /// a [FixedParseException] is thrown.
   ///
@@ -77,55 +88,57 @@ class Fixed implements Comparable<Fixed> {
   /// assume ',' is the decimal place and '.' is the group separator.
   factory Fixed.parse(
     String amount, {
-    int? scale,
+    int? decimalDigits,
     bool invertSeparator = false,
   }) {
-    if (scale != null) {
-      _checkScale(scale);
+    if (decimalDigits != null) {
+      _checkDecimalDigits(decimalDigits);
     }
 
     final decimalSeparator = invertSeparator ? ',' : '.';
 
     final decoder = FixedDecoder(
-      // ignore: flutter_style_todos
-      /// TODO: remove the pattern from the decoder
-      /// as I don't think we actually need one.
-      /// We just need to know what char is the decimal place.
+      // TODO(bsutton): remove the pattern from the decoder
+      // as I don't think we actually need one.
+      // We just need to know what char is the decimal place.
       pattern: '#$decimalSeparator#',
       groupSeparator: invertSeparator ? '.' : ',',
       decimalSeparator: invertSeparator ? ',' : '.',
     );
-    final minorUnitsAndScale = decoder.decode(amount, scale);
-    final targetScale = scale ?? minorUnitsAndScale.scale;
+    final minorUnitsAndScale = decoder.decode(amount, decimalDigits);
+    final targetDecimalDigits =
+        decimalDigits ?? minorUnitsAndScale.decimalDigits;
     return Fixed.fromBigInt(
         _rescale(minorUnitsAndScale.value,
-            existingScale: minorUnitsAndScale.scale, targetScale: targetScale),
-        scale: targetScale);
+            existingDecimalDigits: minorUnitsAndScale.decimalDigits,
+            targetDecimalDigits: targetDecimalDigits),
+        decimalDigits: targetDecimalDigits);
   }
 
-  /// Creates a Fixed scale value from a double
+  /// Creates a Fixed value from a double
   /// or integer value and stores the value with
-  /// the given [scale].
+  /// the given [decimalDigits].
   ///
-  /// [scale] defaults to 16 if not passed.
+  /// [decimalDigits] defaults to 16 if not passed.
   ///
   /// This method will throw [AmountTooLargeException]
-  /// if the [scale] is > 20 or the absolute value
+  /// if the [decimalDigits] is > 20 or the absolute value
   /// is greater than 10^21
   ///
   /// If you need larger numbers then use one of the alternate
   /// constructors.
-  Fixed.fromNum(num amount, {this.scale = 16}) {
+  Fixed.fromNum(num amount, {this.decimalDigits = 16}) {
     ///
     /// ```dart
-    /// final value = Fixed.fromNum(1.2345, scale: 2);
+    /// final value = Fixed.fromNum(1.2345, decimalDigits: 2);
     /// print(value) -> 1.23
     /// ```
     ///
-    _checkScale(scale);
+    _checkDecimalDigits(decimalDigits);
 
-    if (scale > 20) {
-      throw AmountTooLargeException('The maximum scale for num is 20.');
+    if (decimalDigits > 20) {
+      throw AmountTooLargeException(
+          'The maximum decimal digits for num is 20.');
     }
 
     final decoder = FixedDecoder(
@@ -136,81 +149,79 @@ class Fixed implements Comparable<Fixed> {
 
     /// toStringAsFixed is limited to a max of 20 decimal places
     try {
-      final fixed = amount.toStringAsFixed(scale);
+      final fixed = amount.toStringAsFixed(decimalDigits);
       if (fixed.contains('e')) {
         throw AmountTooLargeException('The amount must be less than 10^20');
       }
-      final decimalAndScale = decoder.decode(fixed, scale);
+      final decimalAndScale = decoder.decode(fixed, decimalDigits);
       minorUnits = decimalAndScale.value;
+      // We catch the error so we can provide a more meaningful message.
       // ignore: avoid_catching_errors
     } on RangeError catch (_) {
-      throw AmountTooLargeException('The maximum scale for num is 20.');
+      throw AmountTooLargeException(
+          'The maximum decimal digits for num is 20.');
     }
   }
 
-  /// Creates Fixed scale decimal from [minorUnits] with the given
-  /// [scale].
+  /// Creates Fixed instance from [minorUnits] with the given
+  /// [decimalDigits].
   ///
-  /// [scale] defaults to 2 if not passed.
+  /// [decimalDigits] defaults to 2 if not passed.
   ///
   /// e.g.
   /// ```dart
-  /// final fixed = Fixed.fromInt(100, scale: 2)
+  /// final fixed = Fixed.fromInt(100, decimalDigits: 2)
   /// print(fixed) : 1.00
   /// ```
-  Fixed.fromInt(int minorUnits, {this.scale = 2}) {
-    _checkScale(scale);
-    // final intrinsicScale = minorUnits.toString().length;
-    // if (intrinsicScale < scale) {
-    //   this.minorUnits =
-    //       BigInt.from(minorUnits) * BigInt.from(10).pow(scale
-    //          - intrinsicScale);
-    // } else {
+  Fixed.fromInt(int minorUnits, {this.decimalDigits = 2}) {
+    _checkDecimalDigits(decimalDigits);
     this.minorUnits = BigInt.from(minorUnits);
-    // }
   }
 
-  /// Creates a fixed scale decimal from [amount] with
-  /// the given [scale].
+  /// Creates a Fixed instance from [amount] with
+  /// the given [decimalDigits].
   ///
-  /// [scale] defaults to 16 if not passed.
-  Fixed.fromDecimal(Decimal amount, {this.scale = 16}) {
-    _checkScale(scale);
+  /// [decimalDigits] defaults to 16 if not passed.
+  Fixed.fromDecimal(Decimal amount, {this.decimalDigits = 16}) {
+    _checkDecimalDigits(decimalDigits);
     minorUnits = _rescale(
       (amount * Decimal.ten.pow(amount.scale).toDecimal()).toBigInt(),
-      existingScale: amount.scale,
-      targetScale: scale,
+      existingDecimalDigits: amount.scale,
+      targetDecimalDigits: decimalDigits,
     );
   }
 
-  /// Creates a fixed scale decimal from [minorUnits] with
-  /// the given [scale].
+  /// Creates a Fixed instance from [minorUnits] with
+  /// the given [decimalDigits].
   ///
-  /// [scale] defaults to 2 if not passed.
-  Fixed.fromBigInt(this.minorUnits, {this.scale = 2}) {
-    _checkScale(scale);
+  /// [decimalDigits] defaults to 2 if not passed.
+  Fixed.fromBigInt(this.minorUnits, {this.decimalDigits = 2}) {
+    _checkDecimalDigits(decimalDigits);
   }
 
   /// Returns a new [Fixed] value from an existing one
-  /// changing the scale to [scale].
+  /// changing the decimalDigits to [decimalDigits].
   @Deprecated('Use the copyWith member method')
-  factory Fixed.copyWith(Fixed fixed, {int? scale}) {
-    scale ??= fixed.scale;
-    _checkScale(scale);
+  factory Fixed.copyWith(Fixed fixed, {int? decimalDigits}) {
+    decimalDigits ??= fixed.decimalDigits;
+    _checkDecimalDigits(decimalDigits);
     return Fixed.fromBigInt(
         _rescale(fixed.minorUnits,
-            existingScale: fixed.scale, targetScale: scale),
-        scale: scale);
+            existingDecimalDigits: fixed.decimalDigits,
+            targetDecimalDigits: decimalDigits),
+        decimalDigits: decimalDigits);
   }
 
   /// Returns a new [Fixed] value from an existing one
-  /// changing the scale to [scale].
-  Fixed copyWith({int? scale}) {
-    scale ??= this.scale;
-    _checkScale(scale);
+  /// changing the scale to [decimalDigits].
+  Fixed copyWith({int? decimalDigits}) {
+    decimalDigits ??= this.decimalDigits;
+    _checkDecimalDigits(decimalDigits);
     return Fixed.fromBigInt(
-        _rescale(minorUnits, existingScale: this.scale, targetScale: scale),
-        scale: scale);
+        _rescale(minorUnits,
+            existingDecimalDigits: this.decimalDigits,
+            targetDecimalDigits: decimalDigits),
+        decimalDigits: decimalDigits);
   }
 
   /// Returns the absolute value of this.
@@ -222,6 +233,7 @@ class Fixed implements Comparable<Fixed> {
   /// The [integerPart] will contain the sign.
   BigInt get decimalPart => (minorUnits - integerPart * scaleFactor).abs();
 
+  /// Returns the decimal part as a string
   String decimalPartAsString() {
     var whole = minorUnits.toString();
 
@@ -230,21 +242,21 @@ class Fixed implements Comparable<Fixed> {
       whole = whole.substring(1);
     }
 
-    if (whole.length < scale) {
-      whole = whole.padLeft(scale, '0');
+    if (whole.length < decimalDigits) {
+      whole = whole.padLeft(decimalDigits, '0');
     }
 
-    final decimalStart = whole.length - scale;
+    final decimalStart = whole.length - decimalDigits;
     final decimalPart = whole.substring(decimalStart);
 
     return decimalPart;
   }
 
   @override
-  int get hashCode => minorUnits.hashCode + scale.hashCode;
+  int get hashCode => minorUnits.hashCode + decimalDigits.hashCode;
 
   /// The component of the number before the decimal point
-  BigInt get integerPart => minorUnits ~/ BigInt.from(10).pow(scale);
+  BigInt get integerPart => minorUnits ~/ BigInt.from(10).pow(decimalDigits);
 
   /// returns true of the value of this is negative.
   bool get isNegative => minorUnits < BigInt.zero;
@@ -255,8 +267,8 @@ class Fixed implements Comparable<Fixed> {
   /// returns true if the value of this is zero.
   bool get isZero => minorUnits == BigInt.zero;
 
-  /// Returns 10 ^ [scale]
-  BigInt get scaleFactor => BigInt.from(10).pow(scale);
+  /// Returns 10 ^ [decimalDigits]
+  BigInt get scaleFactor => BigInt.from(10).pow(decimalDigits);
 
   /// Returns the sign of this amount.
   ///
@@ -270,107 +282,168 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns this % [denominator].
   ///
-  /// The scale is the largest of the two [scale]s.
+  /// The decimalDigits is the largest of the two [decimalDigits]s.
   Fixed operator %(Fixed denominator) {
-    final targetScale = max(scale, denominator.scale);
+    final targetDecimalDigits = max(decimalDigits, denominator.decimalDigits);
 
-    final numerator =
-        _rescale(minorUnits, existingScale: scale, targetScale: targetScale);
+    final numerator = _rescale(minorUnits,
+        existingDecimalDigits: decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
     final scaledDenominator = _rescale(denominator.minorUnits,
-        existingScale: denominator.scale, targetScale: targetScale);
+        existingDecimalDigits: denominator.decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
 
-    return Fixed.fromBigInt(numerator % scaledDenominator, scale: targetScale);
+    return Fixed.fromBigInt(numerator % scaledDenominator,
+        decimalDigits: targetDecimalDigits);
   }
 
   /// Returns this * [multiplier].
   ///
-  /// The result's [scale] is the sum of the [scale] of the two
+  /// The result's [decimalDigits] is the sum of the [decimalDigits] of the two
   /// operands.
   Fixed operator *(Fixed multiplier) {
-    // final targetScale = min(scale + multiplier.scale, Scale);
-    final targetScale = scale + multiplier.scale;
+    final targetDecimalDigits = decimalDigits + multiplier.decimalDigits;
 
-    final scaledThis =
-        _rescale(minorUnits, existingScale: scale, targetScale: targetScale);
+    final scaledThis = _rescale(minorUnits,
+        existingDecimalDigits: decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
     final scaledMultiplier = _rescale(multiplier.minorUnits,
-        existingScale: multiplier.scale, targetScale: targetScale);
+        existingDecimalDigits: multiplier.decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
 
     final rawResult = scaledThis * scaledMultiplier;
 
     final scaledResult = _rescale(rawResult,
-        existingScale: targetScale * 2, targetScale: targetScale);
+        existingDecimalDigits: targetDecimalDigits * 2,
+        targetDecimalDigits: targetDecimalDigits);
 
-    return Fixed.fromBigInt(scaledResult, scale: targetScale);
+    return Fixed.fromBigInt(scaledResult, decimalDigits: targetDecimalDigits);
   }
 
   /// Returns this + [addition]
   ///
-  /// The resulting [scale] is the larger scale of the two operands.
+  /// The resulting [decimalDigits] is the larger decimalDigits of
+  /// the two operands.
   Fixed operator +(Fixed addition) {
-    final targetScale = max(scale, addition.scale);
+    final targetDecimalDigits = max(decimalDigits, addition.decimalDigits);
 
-    final scaledThis =
-        _rescale(minorUnits, existingScale: scale, targetScale: targetScale);
+    final scaledThis = _rescale(minorUnits,
+        existingDecimalDigits: decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
     final scaledAddition = _rescale(addition.minorUnits,
-        existingScale: addition.scale, targetScale: targetScale);
+        existingDecimalDigits: addition.decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
 
-    return Fixed.fromBigInt(scaledThis + scaledAddition, scale: targetScale);
+    return Fixed.fromBigInt(scaledThis + scaledAddition,
+        decimalDigits: targetDecimalDigits);
   }
 
   /// Returns -this.
   ///
-  /// The resulting [scale] is the [scale] of this.
-  Fixed operator -() => Fixed.fromBigInt(-minorUnits, scale: scale);
+  /// The resulting [decimalDigits] is the [decimalDigits] of this.
+  Fixed operator -() =>
+      Fixed.fromBigInt(-minorUnits, decimalDigits: decimalDigits);
 
   /// Returns this - [subtration]
   ///
-  /// The scale is the largest of the two [scale]s.
+  /// The decimalDigits is the largest of the two [decimalDigits]s.
   Fixed operator -(Fixed subtration) {
-    final targetScale = max(scale, subtration.scale);
+    final targetDecimalDigits = max(decimalDigits, subtration.decimalDigits);
 
-    final scaledThis =
-        _rescale(minorUnits, existingScale: scale, targetScale: targetScale);
+    final scaledThis = _rescale(minorUnits,
+        existingDecimalDigits: decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
     final scaledSubtraction = _rescale(subtration.minorUnits,
-        existingScale: subtration.scale, targetScale: targetScale);
+        existingDecimalDigits: subtration.decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
 
-    return Fixed.fromBigInt(scaledThis - scaledSubtraction, scale: targetScale);
+    return Fixed.fromBigInt(scaledThis - scaledSubtraction,
+        decimalDigits: targetDecimalDigits);
   }
 
   /// Returns this / [denominator]
   ///
-  /// The scale is the largest of the two [scale]s.
+  /// The decimalDigits is the largest of the two [decimalDigits]s.
+  /// Returns this / [denominator]
+  ///
+  /// The result keeps a scale of max(this.scale, denominator.scale),
+  /// computed entirely with BigInt and rounded half-away-from-zero.
   Fixed operator /(Fixed denominator) {
-    final targetScale = max(scale, denominator.scale);
+    if (denominator.minorUnits == BigInt.zero) {
+      throw FixedException('Division by zero.');
+    }
 
-    final numerator =
-        _rescale(minorUnits, existingScale: scale, targetScale: targetScale);
-    final scaledDenominator = _rescale(denominator.minorUnits,
-        existingScale: denominator.scale, targetScale: targetScale);
+    final targetScale = max(decimalDigits, denominator.decimalDigits);
 
-    final numResult = numerator / scaledDenominator;
+    final scaledNumerator = _rescale(
+      minorUnits,
+      existingDecimalDigits: decimalDigits,
+      targetDecimalDigits: targetScale,
+    );
 
-    return Fixed.fromNum(numResult, scale: targetScale);
+    final scaledDenominator = _rescale(
+      denominator.minorUnits,
+      existingDecimalDigits: denominator.decimalDigits,
+      targetDecimalDigits: targetScale,
+    );
+
+    // Preserve targetScale digits after the decimal by multiplying
+    //before dividing.
+    final dividend = scaledNumerator * BigInt.from(10).pow(targetScale);
+
+    final quotient = _divRoundHalfAwayFromZero(dividend, scaledDenominator);
+
+    return Fixed.fromBigInt(quotient, decimalDigits: targetScale);
+  }
+
+  /// Integer divide with round-half-away-from-zero.
+  /// Returns round(a / b) with half cases rounded away from zero.
+  static BigInt _divRoundHalfAwayFromZero(BigInt a, BigInt b) {
+    if (b == BigInt.zero) {
+      throw FixedException('Division by zero.');
+    }
+
+    final neg = (a.isNegative) ^ (b.isNegative);
+    final A = a.abs();
+    final B = b.abs();
+
+    final q = A ~/ B;
+    final r = A % B;
+
+    // Compare 2*r with B to detect half/up/down
+    final twiceR = r << 1;
+    var mag = q;
+    if (twiceR > B) {
+      mag = q + BigInt.one; // > .5 -> round up
+    } else if (twiceR == B) {
+      mag = q + BigInt.one; // == .5 -> away from zero
+    } // else < .5 -> keep q
+
+    return neg ? -mag : mag;
   }
 
   /// Returns  this / [divisor].
   ///
-  /// The scale is left unchanged.
+  /// The decimalDigits is left unchanged.
   Fixed divide(num divisor) => this * Fixed.fromNum(1.0 / divisor.toDouble());
 
   /// Returns the this ~/ [denominator]
   ///
   /// This is a truncating division operator.
   ///
-  /// The scale is the largest of the two [scale]s.
+  /// The decimalDigits is the largest of the two [decimalDigits]s.
   Fixed operator ~/(Fixed denominator) {
-    final targetScale = max(scale, denominator.scale);
+    final targetDecimalDigits = max(decimalDigits, denominator.decimalDigits);
 
-    final numerator =
-        _rescale(minorUnits, existingScale: scale, targetScale: targetScale);
+    final numerator = _rescale(minorUnits,
+        existingDecimalDigits: decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
     final scaledDenominator = _rescale(denominator.minorUnits,
-        existingScale: denominator.scale, targetScale: targetScale);
+        existingDecimalDigits: denominator.decimalDigits,
+        targetDecimalDigits: targetDecimalDigits);
 
-    return Fixed.fromBigInt(numerator ~/ scaledDenominator, scale: targetScale);
+    return Fixed.fromBigInt(numerator ~/ scaledDenominator,
+        decimalDigits: targetDecimalDigits);
   }
 
   /// less than operator
@@ -386,7 +459,7 @@ class Fixed implements Comparable<Fixed> {
   }
 
   /// Two Fixed values are considered equal if they have
-  /// the same value irrespective of scale.
+  /// the same value irrespective of decimalDigits.
   @override
   bool operator ==(Object other) {
     if (other is! Fixed) {
@@ -430,11 +503,11 @@ class Fixed implements Comparable<Fixed> {
   }
 
   /// Two [Fixed] instances are the same if they have
-  /// the same [minorUnits] and the same [scale].
+  /// the same [minorUnits] and the same [decimalDigits].
   @override
   int compareTo(Fixed other) {
     if (minorUnits == other.minorUnits) {
-      return scale.compareTo(other.scale);
+      return decimalDigits.compareTo(other.decimalDigits);
     } else {
       return minorUnits.compareTo(other.minorUnits);
     }
@@ -476,15 +549,22 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns this * [multiplier]
   ///
-  /// If [scale] is not passed then  [multiplier] is scaled based on
-  /// this' [scale].
-  /// The result's [scale] == [scale] * 2.
-  Fixed multiply(num multiplier, {int? scale}) =>
-      this * Fixed.fromNum(multiplier, scale: scale ?? this.scale);
-
-  /// Returns this ^ [exponent]
+  /// if you pass [decimalDigits] then it will be used
+  /// to determine the number of decimals to retain from [multiplier].
+  /// If you don't pass [decimalDigits] then this.decimalDigits
+  /// will be used.
   ///
-  /// The returned value has the same [scale] as this.
+  /// The result's [decimalDigits] == [decimalDigits] * 2.
+  Fixed multiply(num multiplier, {int? decimalDigits}) =>
+      this *
+      Fixed.fromNum(multiplier,
+          decimalDigits: decimalDigits ?? this.decimalDigits);
+
+  /// Returns this ^ [exponent].
+  ///
+  /// Keeps the same [decimalDigits] as this. We raise the minorUnits and then
+  /// scale back by 10^(scale * (exponent - 1)) with half-away-from-zero
+  /// rounding.
   Fixed pow(int exponent) {
     if (exponent < 0) {
       throw ArgumentError.value(exponent, 'exponent',
@@ -492,25 +572,25 @@ class Fixed implements Comparable<Fixed> {
     }
     if (exponent == 0) {
       // 1.0 at the same scale
-      return Fixed.fromNum(1, scale: scale);
+      return Fixed.fromNum(1, decimalDigits: decimalDigits);
     }
     if (exponent == 1) {
       return this;
     }
 
     final raised = minorUnits.pow(exponent);
-    final scaleDiff = scale * (exponent - 1);
+    final scaleDiff = decimalDigits * (exponent - 1);
 
     // Divide by 10^scaleDiff with half-away-from-zero rounding
     final adjusted = _roundHalfAwayFromZero(raised, scaleDiff);
 
-    return Fixed.fromBigInt(adjusted, scale: scale);
+    return Fixed.fromBigInt(adjusted, decimalDigits: decimalDigits);
   }
 
   /// Returns the remainder of dividing this / [divisor].
   ///
-  /// The [scale] is largest of the two scale + the scale
-  /// of the [divisor].
+  /// The [decimalDigits] is largest of the two decimalDigits
+  /// + the decimalDigits of the [divisor].
   Fixed remainder(Fixed divisor) => this - (this ~/ divisor) * divisor;
 
   /// Returns the value as a [Decimal]
@@ -519,24 +599,24 @@ class Fixed implements Comparable<Fixed> {
   /// Truncates this and returns the integer part.
   int toInt() => minorUnits == BigInt.zero
       ? 0
-      : (minorUnits ~/ BigInt.from(10).pow(scale)).toInt();
+      : (minorUnits ~/ BigInt.from(10).pow(decimalDigits)).toInt();
 
-  /// Returns the [Fixed] value using [scale] to control the
+  /// Returns the [Fixed] value using [decimalDigits] to control the
   /// displayed number of decimal places.
   ///
   /// ```dart
-  /// Fixed.fromInt(1000, scale: 3).toString() == '1.000'
+  /// Fixed.fromInt(1000, decimalDigits: 3).toString() == '1.000'
   /// ```
   ///
-  /// If you need to invert the separators or
-  /// control the returned scale use [format].
+  /// If you need to modify the separators or
+  /// control the returned decimalDigits use [format].
   @override
   String toString() {
     final String pattern;
-    if (scale == 0) {
+    if (decimalDigits == 0) {
       pattern = '#';
     } else {
-      pattern = '0.${'#' * scale}';
+      pattern = '0.${'#' * decimalDigits}';
     }
     final encoder = FixedEncoder(pattern);
 
@@ -570,51 +650,52 @@ class Fixed implements Comparable<Fixed> {
 
     return shares
         .map((share) => Fixed.fromBigInt(minorUnits.isNegative ? -share : share,
-            scale: scale))
+            decimalDigits: decimalDigits))
         .toList();
   }
 
   /// Works the same as [Fixed.parse] but returns a null
   /// if the [amount] cannot be parsed.
   ///
-  /// Sets the [scale] of the returned number to [scale].
+  /// Sets the [decimalDigits] of the returned number to [decimalDigits].
   ///
-  /// [scale] defaults to 2 if not passed.
+  /// [decimalDigits] defaults to 2 if not passed.
   static Fixed? tryParse(
     String amount, {
-    int scale = 2,
+    int decimalDigits = 2,
     bool invertSeparator = false,
   }) {
     try {
       return Fixed.parse(amount,
           //pattern: pattern,
-          scale: scale,
+          decimalDigits: decimalDigits,
           invertSeparator: invertSeparator);
-      // ignore: avoid_catches_without_on_clauses
     } catch (_) {
       return null;
     }
   }
 
-  static void _checkScale(int scale) {
-    if (scale < 0) {
-      throw FixedException('A negative scale of $scale was passed. '
-          'The scale must be >= 0.');
+  static void _checkDecimalDigits(int decimalDigits) {
+    if (decimalDigits < 0) {
+      throw FixedException(
+          'A negative decimalDigits of $decimalDigits was passed. '
+          'The decimalDigits must be >= 0.');
     }
   }
 
   static BigInt _rescale(
     BigInt minorUnits, {
-    required int existingScale,
-    required int targetScale,
+    required int existingDecimalDigits,
+    required int targetDecimalDigits,
   }) {
-    if (existingScale < targetScale) {
-      // Increase scale: just multiply by 10^(targetScale - existingScale)
-      final diff = targetScale - existingScale;
+    if (existingDecimalDigits < targetDecimalDigits) {
+      // Increase decimalDigits:
+      //  just multiply by 10^(targetDecimalDigits - existingDecimalDigits)
+      final diff = targetDecimalDigits - existingDecimalDigits;
       return minorUnits * BigInt.from(10).pow(diff);
-    } else if (existingScale > targetScale) {
-      // Reduce scale with round-half-away-from-zero
-      final diff = existingScale - targetScale;
+    } else if (existingDecimalDigits > targetDecimalDigits) {
+      // Reduce decimalDigits with round-half-away-from-zero
+      final diff = existingDecimalDigits - targetDecimalDigits;
       return _roundHalfAwayFromZero(minorUnits, diff);
     } else {
       // No change
@@ -622,11 +703,13 @@ class Fixed implements Comparable<Fixed> {
     }
   }
 
-  /// Divides [value] by 10^[scaleDiff], then rounds half away from zero.
-  /// Example: If [value] = 15241578750190521000000, scaleDiff = 6, we want
-  /// to do integer division plus correct rounding—without floating-point.
-  static BigInt _roundHalfAwayFromZero(BigInt value, int scaleDiff) {
-    final divisor = BigInt.from(10).pow(scaleDiff);
+  /// Divides [value] by 10^[decimalDigitsDiff], then rounds half
+  ///   away from zero.
+  /// Example: If [value] = 15241578750190521000000, decimalDigitsDiff = 6,
+  ///   we want to do integer division plus correct
+  ///   rounding—without floating-point.
+  static BigInt _roundHalfAwayFromZero(BigInt value, int decimalDigitsDiff) {
+    final divisor = BigInt.from(10).pow(decimalDigitsDiff);
     if (divisor == BigInt.one) {
       // Nothing to scale
       return value;
@@ -661,20 +744,22 @@ class Fixed implements Comparable<Fixed> {
   }
 
   _Scaled2 _scale(Fixed fixed, Fixed other) {
-    if (fixed.scale > other.scale) {
+    if (fixed.decimalDigits > other.decimalDigits) {
       return _Scaled2(
           fixed,
           Fixed.fromBigInt(
               _rescale(other.minorUnits,
-                  existingScale: other.scale, targetScale: fixed.scale),
-              scale: fixed.scale));
+                  existingDecimalDigits: other.decimalDigits,
+                  targetDecimalDigits: fixed.decimalDigits),
+              decimalDigits: fixed.decimalDigits));
     }
-    if (fixed.scale < other.scale) {
+    if (fixed.decimalDigits < other.decimalDigits) {
       return _Scaled2(
           Fixed.fromBigInt(
               _rescale(fixed.minorUnits,
-                  existingScale: fixed.scale, targetScale: other.scale),
-              scale: other.scale),
+                  existingDecimalDigits: fixed.decimalDigits,
+                  targetDecimalDigits: other.decimalDigits),
+              decimalDigits: other.decimalDigits),
           other);
     }
     return _Scaled2(fixed, other);
