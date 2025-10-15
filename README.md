@@ -13,7 +13,10 @@ The features of Fixed are:
 
 Fixed is sponsored by OnePub, the Dart private package repository.
 
-<a href="https://onepub.dev">![OnePub](https://raw.githubusercontent.com/onepub-dev/fixed/main/images/LogoAndByLine.png)</a>
+<a href="https://onepub.dev">
+  <img src="https://raw.githubusercontent.com/onepub-dev/fixed/main/images/LogoAndByLine.png" alt="OnePub" width="300">
+</a>
+
 
 
 You can create a Fixed instance from a number sources
