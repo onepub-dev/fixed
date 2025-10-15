@@ -1,3 +1,6 @@
+# 6.1.1
+- reduced the sizes of the onepub logo.
+
 # 6.1.0
 - Fix for https://github.com/onepub-dev/fixed/issues/24 pow returns incorrect results.
   thanks to @zamahaka for raising hte issue.
