@@ -1,3 +1,6 @@
+# 6.2.0
+- upgraded to intl ^0.20.3
+
 # 6.1.1
 - reduced the sizes of the onepub logo.
 
