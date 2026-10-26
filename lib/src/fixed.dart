@@ -253,7 +253,19 @@ class Fixed implements Comparable<Fixed> {
   }
 
   @override
-  int get hashCode => minorUnits.hashCode + decimalDigits.hashCode;
+  int get hashCode {
+    if (isZero) {
+      return Object.hash(BigInt.zero, 0);
+    }
+    var value = minorUnits;
+    var digits = decimalDigits;
+    final ten = BigInt.from(10);
+    while (digits > 0 && value.remainder(ten) == BigInt.zero) {
+      value ~/= ten;
+      digits--;
+    }
+    return Object.hash(value, digits);
+  }
 
   /// The component of the number before the decimal point
   BigInt get integerPart => minorUnits ~/ BigInt.from(10).pow(decimalDigits);
@@ -424,8 +436,22 @@ class Fixed implements Comparable<Fixed> {
 
   /// Returns  this / [divisor].
   ///
-  /// The decimalDigits is left unchanged.
-  Fixed divide(num divisor) => this * Fixed.fromNum(1.0 / divisor.toDouble());
+  /// The [decimalDigits] is left unchanged. The divisor is interpreted using
+  /// its decimal string representation, and the result is rounded once,
+  /// half away from zero. Zero and non-finite divisors throw [FixedException].
+  Fixed divide(num divisor) {
+    if (!divisor.isFinite || divisor == 0) {
+      throw FixedException('The divisor must be finite and non-zero.');
+    }
+    final decimalDivisor = Decimal.parse(divisor.toString());
+    final divisorScale = decimalDivisor.scale;
+    final divisorFactor = BigInt.from(10).pow(divisorScale);
+    final divisorUnits =
+        (decimalDivisor * Decimal.fromBigInt(divisorFactor)).toBigInt();
+    return Fixed.fromBigInt(
+        _divRoundHalfAwayFromZero(minorUnits * divisorFactor, divisorUnits),
+        decimalDigits: decimalDigits);
+  }
 
   /// Returns the this ~/ [denominator]
   ///
@@ -442,7 +468,9 @@ class Fixed implements Comparable<Fixed> {
         existingDecimalDigits: denominator.decimalDigits,
         targetDecimalDigits: targetDecimalDigits);
 
-    return Fixed.fromBigInt(numerator ~/ scaledDenominator,
+    return Fixed.fromBigInt(
+        (numerator ~/ scaledDenominator) *
+            BigInt.from(10).pow(targetDecimalDigits),
         decimalDigits: targetDecimalDigits);
   }
 
@@ -502,15 +530,12 @@ class Fixed implements Comparable<Fixed> {
     }).toList());
   }
 
-  /// Two [Fixed] instances are the same if they have
-  /// the same [minorUnits] and the same [decimalDigits].
+  /// Compares numeric values irrespective of [decimalDigits], consistently
+  /// with equality and the relational operators.
   @override
   int compareTo(Fixed other) {
-    if (minorUnits == other.minorUnits) {
-      return decimalDigits.compareTo(other.decimalDigits);
-    } else {
-      return minorUnits.compareTo(other.minorUnits);
-    }
+    final scaled = _scale(this, other);
+    return scaled.one.minorUnits.compareTo(scaled.two.minorUnits);
   }
 
   /// Formats a [Fixed] value into a String according to the
@@ -572,7 +597,7 @@ class Fixed implements Comparable<Fixed> {
     }
     if (exponent == 0) {
       // 1.0 at the same scale
-      return Fixed.fromNum(1, decimalDigits: decimalDigits);
+      return Fixed.fromBigInt(scaleFactor, decimalDigits: decimalDigits);
     }
     if (exponent == 1) {
       return this;

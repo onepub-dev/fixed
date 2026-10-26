@@ -19,22 +19,47 @@ Fixed is sponsored by OnePub, the Dart private package repository.
 
 
 
-You can create a Fixed instance from a number sources
+You can create a Fixed instance from a number of sources:
 ```dart
-var t1 = Fixed.fromNum(1); /// == 1.00
-var t2 = Fixed.fromNum(1, decimalDigits: 3); /// == 1.000
+import 'package:fixed/fixed.dart';
 
-var add = t1 + 10;
-var multiply = t1 * t2;
+void main() {
+  final t1 = Fixed.fromNum(1, decimalDigits: 2); // 1.00
+  final t2 = Fixed.fromNum(1, decimalDigits: 3); // 1.000
 
-var t3 = Fixed.parse("1.23356"); // == 1.23356, decimalDigits: 5
+  final add = t1 + Fixed.ten;
+  final multiply = t1 * t2;
+  print(add); // 11.00
+  print(multiply); // 1.00000
 
-if (t1 == t2) // true
-{
-    print(t1.format('0.##')); // '1.00'
-    print(t3.format('0.###')); // '1.123'
+  final t3 = Fixed.parse('1.23356'); // decimalDigits: 5
+
+  if (t1 == t2) { // true
+    print(t1.format('0.##')); // 1.00
+    print(t3.format('0.###')); // 1.233
+  }
 }
 ```
 
+
+Numeric equality, ordering (`compareTo` and relational operators), and hash codes
+ignore differences in scale: `Fixed.parse('1.0')` and `Fixed.parse('1.00')`
+represent the same value and can be used interchangeably as map keys.
+
+Parsing consumes the entire input and throws `FixedParseException` for invalid
+suffixes or input without digits. `Fixed.tryParse` returns `null` for invalid
+input. Whitespace is ignored, grouping separators are accepted, and
+`invertSeparator: true` swaps the decimal and grouping separators.
+
+`~/` truncates the quotient towards zero and retains the larger operand scale.
+For example, `Fixed.parse('7.50') ~/ Fixed.parse('2.0')` produces `3.00`,
+and the corresponding `remainder` is `1.500`.
+
+`divide(num)` retains the original value's scale and rounds once, half away
+from zero. It interprets the divisor's decimal string representation without
+computing a floating-point reciprocal. For example,
+`Fixed.parse('1.00').divide(3)` produces `0.33`. Zero and non-finite divisors
+throw `FixedException`. `pow(0)` returns one at the original scale, including
+scales above 20 decimal digits.
 
 Full documentation can be found [here.](https://fixed.onepub.dev)

@@ -10,3 +10,4 @@ build/
 pubspec.lock
 .failed_tracker
 logs/analyzer.txt
+/custom_lint.log

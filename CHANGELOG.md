@@ -1,3 +1,12 @@
+# 6.3.0
+- Raised the minimum Dart SDK to 3.9.0 to match the `intl ^0.20.3` dependency.
+- Fixed `compareTo` to compare numeric values across different decimal scales.
+- Fixed equal values at different scales to have equal hash codes, including in sets and map keys.
+- Fixed parsing to reject unconsumed suffixes and digitless input with `FixedParseException`, while retaining whitespace and grouping support.
+- Fixed `~/` to return the truncated numeric quotient at the documented scale, also correcting `remainder`.
+- Fixed `divide(num)` to use decimal divisor arithmetic instead of a floating-point reciprocal, rounding once to the original scale.
+- Fixed `pow(0)` for values with more than 20 decimal digits.
+
 # 6.2.0
 - upgraded to intl ^0.20.3
 

@@ -38,6 +38,9 @@ class FixedDecoder {
     var compressedPattern = compressDigits(pattern);
     compressedPattern = compressWhitespace(compressedPattern);
     final compressedMonetaryValue = compressWhitespace(monetaryValue);
+    if (!RegExp('[0-9]').hasMatch(compressedMonetaryValue)) {
+      throw FixedParseException('The value must contain at least one digit.');
+    }
 
     var isNegative = false;
     var seenMajor = false;
@@ -72,7 +75,7 @@ class FixedDecoder {
                   compressedPattern: compressedPattern,
                   patternIndex: i,
                   compressedValue: compressedMonetaryValue,
-                  monetaryIndex: valueQueue.index,
+                  monetaryIndex: valueQueue.index - 1,
                   monetaryValue: monetaryValue);
             }
           }
@@ -84,6 +87,11 @@ class FixedDecoder {
             'Invalid character "${compressedPattern[i]}" found in pattern.',
           );
       }
+    }
+
+    if (valueQueue.isNotEmpty) {
+      throw FixedParseException('Unexpected character "${valueQueue.peek()}" '
+          'at pos ${valueQueue.index}.');
     }
 
     final value =
@@ -212,6 +220,10 @@ class ValueQueue {
     }
 
     if (digits.isEmpty) {
+      if (isEmpty) {
+        throw FixedParseException('Expected a digit at pos $index.');
+      }
+
       /// If the numbers starts with the decimal separator e.g. '.9'
       /// then treated it as if it started with a zero.
       if (monetaryValue[index] == decimalSeparator) {
